@@ -1,7 +1,7 @@
 "use strict";
 
 const vscode = require("vscode");
-const { getServers } = require('./GlobalState');
+const { getServers, getTableData, setTableData } = require('./GlobalState');
 
 var selfWebView = undefined;
 
@@ -150,9 +150,9 @@ var DataLogPanel = /** @class */ (function () {
                     <link href="${styleUri}" rel="stylesheet">
                 </head>
                 <body>
-									<div class="function-buttons">
-										<p> View is loaded </p>
-									</div>
+				<div class="tableComponent2" id="tableComponent2">
+				</div>
+
                 </body>
                 <script src="${scriptUri}"></script>
                 </html>
@@ -173,7 +173,11 @@ var DataLogPanel = /** @class */ (function () {
 				"Key": "Server Name",
 				"Value": server.name
 			})
-			console.log(data);
+			// console.log(data);
+			setTableData(data);
+			console.log(getTableData())
+			selfWebView.postMessage({ command: 'updateTableData', tableData: getTableData() });
+			
 		})
 	});
 })();

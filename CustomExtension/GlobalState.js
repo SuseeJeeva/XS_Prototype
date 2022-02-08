@@ -18,6 +18,7 @@ const testMethodPackage = protoDescriptor.testmethod;
 var tfeData = {
 
 }
+var tableData =[];
 
 var servers = [{
   name: "Server 1",
@@ -63,3 +64,13 @@ var servers = [{
 exports.getTFEData = () => tfeData;
 exports.setTFEData = (newTFEData) => tfeData = newTFEData;
 exports.getServers = () => servers;
+exports.getTableData = () => tableData;
+exports.setTableData = (data) => {
+  if(tableData.length<20) {
+    tableData.push(data);
+  }
+  else{
+    tableData.shift();
+    tableData.push(data);
+  }
+}
