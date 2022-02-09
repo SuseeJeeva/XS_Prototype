@@ -1,56 +1,47 @@
-//const { getDatalogConfig } = require("../../GlobalState");
-
 const vscode = acquireVsCodeApi();
+vscode.postMessage({
+    command: 'syncDatalogConfigData'
+  });
+  
 console.log("Datalog index file is loaded");
-let inputOne = document.getElementById("inputOne");
-let inputTwo = document.getElementById("inputTwo");
-// let inputThree = document.getElementById("inputThree");
-let inputFour = document.getElementById("inputFour");
+
+let recordsInput = document.getElementById("recordsInput");
+let currentPageInput = document.getElementById("currentPageInput");
+let refreshInput = document.getElementById("refreshInput");
 
 
-inputOne.addEventListener('change', updateValueOne);
-inputTwo.addEventListener('change',updateValueTwo);
-// inputThree.addEventListener('change',updateValueThree);
-inputFour.addEventListener('change',updateValueFour);
+recordsInput.addEventListener('change', updateRecords);
+currentPageInput.addEventListener('change',updateCurrentPageNumber);
+refreshInput.addEventListener('change',updateRefreshRate);
 
-function updateValueOne(e){
+function updateRecords(e){
    let newConfigData = {
       recordsPerPage: parseInt(e.target.value) ,
-      currentPageNumber: parseInt(inputTwo.value),
-      refreshRate:parseInt(inputFour.value)
+      currentPageNumber: parseInt(currentPageInput.value),
+      refreshRate:parseInt(refreshInput.value)
    }
    vscode.postMessage({
        command:'updateDatalogConfig', newConfigData :newConfigData
    });
 }
 
-function updateValueTwo(e){
+function updateCurrentPageNumber(e){
     let newConfigData = {
-        recordsPerPage: parseInt(inputOne.value) ,
+        recordsPerPage: parseInt(recordsInput.value) ,
         currentPageNumber: parseInt(e.target.value),
-        refreshRate:parseInt(inputFour.value)
+        refreshRate:parseInt(refreshInput.value)
      }
      vscode.postMessage({
         command:'updateDatalogConfig', newConfigData:newConfigData
     });
 }
 
-// function updateValueThree(e){
-//     let newConfigData = {
-//         recordsPerPage: parseInt(inputOne.value) ,
-//         currentPageNumber: parseInt(inputTwo.value),
-//         maxPageNumber: parseInt(e.target.value),
-//         refreshRate:parseInt(inputFour.value)
-//      }
-//      vscode.postMessage({
-//         command:'updateDatalogConfig', newConfigData:newConfigData
-//     });
-// }
 
-function updateValueFour(e){
+
+function updateRefreshRate(e){
     let newConfigData = {
-        recordsPerPage: parseInt(inputOne.value) ,
-        currentPageNumber: parseInt(inputTwo.value),
+        recordsPerPage: parseInt(recordsInput.value) ,
+        currentPageNumber: parseInt(currentPageInput.value),
         refreshRate:  parseInt(e.target.value)
      }
      vscode.postMessage({
@@ -58,23 +49,11 @@ function updateValueFour(e){
     });
 }
 
-
-
-// function loadInitialTable(){
-//     let table = document.getElementById("table2");
-//     table.innerHTML=`<tr class="table-head">
-//     <td>Server Name</td>
-//     <td>Site</td>
-//     <td>Measured Value</td>
-//     <td>Test Method Name</td>
-//    </tr>`;
-  
-//   }
- 
   
   function datalogger(tableData){
     let table = document.getElementById("table2");
-    table.innerHTML=`<tr class="table-head">
+    table.innerHTML = ``;
+    table.innerHTML= `<tr class="table-head">
     <td>Server Name</td>
     <td>Site</td>
     <td>Measured Value</td>
@@ -93,53 +72,62 @@ function updateValueFour(e){
         d.innerHTML=`${data.keyValuePair[2].Value}`;
     });
     
-    // tableData.forEach(data => {
-    //     table.innerHTML+=`<tr>
-    //     <td>${data.keyValuePair[3].Value}</td>
-    //     <td>${data.keyValuePair[0].Value}</td>
-    //     <td>${data.keyValuePair[1].Value}</td>
-    //     <td>${data.keyValuePair[2].Value}</td>
-    //    </tr>`
-    // });
-//     table.innerHTML+=`<tr>
-//     <td>${data.keyValuePair[3].Value}</td>
-//     <td>${data.keyValuePair[0].Value}</td>
-//     <td>${data.keyValuePair[1].Value}</td>
-//     <td>${data.keyValuePair[2].Value}</td>
-//    </tr>`
+   
   }
   
   function updateTableData(tableData){
-    let tableComponent2 = document.getElementById("tableComponent2");
-    // tableComponent2.innerHTML=`<table id="table2"></table>`;
-     //loadInitialTable();
-     datalogger(tableData);
+    
+     let table = document.getElementById("table2");
+    table.innerHTML = ``;
+    table.innerHTML= `<tr class="table-head">
+    <td>Server Name</td>
+    <td>Site</td>
+    <td>Measured Value</td>
+    <td>Test Method Name</td>
+</tr>`;
+    tableData.reverse();
+    tableData.forEach(data => {
+        var x = table.insertRow(1);
+        var a = x.insertCell(0);
+        var b = x.insertCell(1);
+        var c = x.insertCell(2);
+        var d = x.insertCell(3);
+        a.innerHTML=`${data.keyValuePair[3].Value}`;
+        b.innerHTML=`${data.keyValuePair[0].Value}`;
+        c.innerHTML=`${data.keyValuePair[1].Value}`;
+        d.innerHTML=`${data.keyValuePair[2].Value}`;
+    });
+    
 
   }
-//   function updateConfigData(data){
-//       let a = document.getElementById("records");
-//       let b = document.getElementById("current");
-//       let c = document.getElementById("max");
-//       let d = document.getElementById("refresh");
-//       a.innerText = `Records per page: ${data.recordsPerPage}`;
-//       b.innerText = `Current page number: ${data.currentPageNumber}`;
-//       c.innerText = `Maximum page number: ${data.maxPageNumber}`;
-//       d.innerText = `Refresh rate: ${data.refreshRate}`;
-//   }
+
+  function updateDatalogConfig(data){
+    let recordsInput = document.getElementById("recordsInput");
+    let currentPageInput = document.getElementById("currentPageInput");
+    let maxPageNumber = document.getElementById("max");
+    let refreshInput = document.getElementById("refreshInput");
+    recordsInput.value = data.recordsPerPage;
+    currentPageInput.value = data.currentPageNumber;
+    maxPageNumber.innerHTML = `Max Page Number: ${data.maxPageNumber}`;
+    refreshInput.value = data.refreshRate;
+  }
+
+  function updateMaxPageNumber(data){
+    let maxPageNumber = document.getElementById("max");  
+    maxPageNumber.innerHTML = `Max Page Number: ${data.maxPageNumber}`;  
+  }
 
   window.addEventListener('message', event => {
     switch (event.data.command) {
-    //   case 'updateTableData':
-    //     updateTableData(event.data.tableData);
-    //     break;
-    
       case 'updateDatalogData':
         updateTableData(event.data.datalogData);
         break;
-    //   case 'sendConfigData':
-    //     updateConfigData(event.data.configData)
-    //     break;
-  
+      case 'updateDatalogConfig':
+        updateDatalogConfig(event.data.datalogConfig);
+        break;
+      case 'updateMaxPageNumber':
+        updateMaxPageNumber(event.data.maxPageNumber);
+        break;
     }
   });
  

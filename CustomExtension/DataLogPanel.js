@@ -120,10 +120,16 @@ var DataLogPanel = /** @class */ (function () {
 						return __generator(this, function (_a) {
 							switch (data.command) {
                               case 'updateDatalogConfig':
-								  let newConfigDataTwo = data.newConfigData;
-								  newConfigDataTwo.maxPageNumber = getDatalogConfig().maxPageNumber
-								  setDatalogConfig(newConfigDataTwo);
+								  getDatalogConfig().recordsPerPage = data.newConfigData.recordsPerPage;
+								  getDatalogConfig().refreshRate = data.newConfigData.refreshRate;
+								  getDatalogConfig().currentPageNumber = data.newConfigData.currentPageNumber;
 								  break;
+								case 'syncDatalogConfigData':
+									selfWebView.postMessage({ command: 'updateDatalogConfig', datalogConfig: getDatalogConfig()});
+									break;
+								// case 'syncMaxPageNumber':
+								// 	selfWebView.postMessage({ command: 'updateMaxPageNumber', maxPageNumber: getDatalogConfig().maxPageNumber});
+								// 	break;
 							}
 							return [2 /*return*/];
 						});
@@ -159,10 +165,10 @@ var DataLogPanel = /** @class */ (function () {
                 </head>
                 <body>
 				<div id="config">
-				<div><h4 id="records">Records per page: </h4><input id="inputOne" type="number" min="0" value="10"></div>
-				<div><h4 id="current">Current page: </h4><input id="inputTwo" type="number" min="0" value="1"></div>
+				<div><h4 id="records">Records per page: </h4><input id="recordsInput" type="number" min="0" value="${getDatalogConfig().recordsPerPage}"></div>
+				<div><h4 id="current">Current page: </h4><input id="currentPageInput" type="number" min="0" value="${getDatalogConfig().currentPageNumber}"></div>
 				<div><h4 id="max">Max page number: ${getDatalogConfig().maxPageNumber} </h4></div>
-				<div><h4 id="refresh">Refresh rate: </h4><input id="inputFour" type="number" min="0" value="2000"></div>
+				<div><h4 id="refresh">Refresh rate: </h4><input id="refreshInput" type="number" min="0" value="${getDatalogConfig().refreshRate}"></div>
                 </div>
 				<div class="tableComponent2" id="tableComponent2">
 				<table id="table2">
@@ -260,6 +266,7 @@ function updateDatalogPanel(refreshRate) {
 			var datalogData = parsedData.slice(recordStart, recordEnd);
             console.log(datalogData);
 			console.log(configData);
+			selfWebView.postMessage({ command: 'updateMaxPageNumber', maxPageNumber: getDatalogConfig().maxPageNumber});
 			selfWebView.postMessage({ command: 'updateDatalogData', datalogData: datalogData });
 			// selfWebView.postMessage({ command: 'sendConfigData', configData: configData });
 			
