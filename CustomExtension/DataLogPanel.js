@@ -1,7 +1,11 @@
 "use strict";
 
 const vscode = require("vscode");
-const { getServers, getTableData, setTableData } = require('./GlobalState');
+const { getServers, getDatalogData, getDatalogConfig, setDatalogConfig } = require('./GlobalState');
+const fs = require('fs');
+
+const logFileDirectory = __dirname + "/logs/";
+const logFilePath = logFileDirectory + "logs.txt";
 
 var selfWebView = undefined;
 
@@ -115,7 +119,9 @@ var DataLogPanel = /** @class */ (function () {
 					return __awaiter(_this, void 0, void 0, function () {
 						return __generator(this, function (_a) {
 							switch (data.command) {
-
+                              case 'updateDatalogConfig':
+								  setDatalogConfig(data.value);
+								  break;
 							}
 							return [2 /*return*/];
 						});
@@ -150,9 +156,21 @@ var DataLogPanel = /** @class */ (function () {
                     <link href="${styleUri}" rel="stylesheet">
                 </head>
                 <body>
+				<div id="config">
+				<div><h4 id="records">Records per page: </h4><input id="inputOne" type="number" value="10"></div>
+				<div><h4 id="current">Current page: </h4><input id="inputTwo" type="number" value="1"></div>
+				<div><h4 id="max">Max page number: </h4><input id="inputThree" type="number" value="11"></div>
+				<div><h4 id="refresh">Refresh rate: </h4><input id="inputFour" type="number" value="2000"></div>
+                </div>
 				<div class="tableComponent2" id="tableComponent2">
+				<table id="table2">
+				<tr class="table-head">
+                <td>Server Name</td>
+                <td>Site</td>
+				<td>Measured Value</td>
+				<td>Test Method Name</td>
+			</tr></table>
 				</div>
-
                 </body>
                 <script src="${scriptUri}"></script>
                 </html>
@@ -173,13 +191,87 @@ var DataLogPanel = /** @class */ (function () {
 				"Key": "Server Name",
 				"Value": server.name
 			})
-			// console.log(data);
-			setTableData(data);
-			console.log(getTableData())
-			selfWebView.postMessage({ command: 'updateTableData', tableData: getTableData() });
-			
+			getDatalogData().push(data);
 		})
 	});
 })();
+
+function refreshDatalogData() {
+	var refreshRate = getDatalogConfig().refreshRate;
+
+	try {
+		if (getDatalogData().length > 0) {
+			fs.readFile(logFilePath, 'utf8', function (err, data) {
+				if (err) {
+					if (!fs.statSync(logFileDirectory).isDirectory()) {
+						setTimeout(refreshDatalogData, refreshRate);
+						return;
+					}
+				}
+				writeToDatalogFile(refreshRate, data);
+			});
+		}
+		else {
+			updateDatalogPanel(refreshRate);
+		}
+	} catch (e) {
+		console.log("Error on Datalog operation " + e);
+		setTimeout(refreshDatalogData, refreshRate);
+	}
+}
+
+function writeToDatalogFile(refreshRate, data) {
+	try {
+		if (data == null) {
+			data = []
+		} else {
+			data = JSON.parse(data)
+		}
+
+		var newRecords = getDatalogData().splice(0, 100000).reverse();
+		var combinedData = [...newRecords, ...data];
+
+		fs.writeFile(logFilePath, JSON.stringify(combinedData), function (err) {
+			if (err) {
+				getDatalogData().unshift(...newRecords);
+			}
+			updateDatalogPanel(refreshRate);
+		});
+	} catch (e) {
+		throw e;
+	}
+}
+
+function updateDatalogPanel(refreshRate) {
+	try {
+		fs.readFile(logFilePath, 'utf8', function (err, data) {
+			if (err) {
+				setTimeout(refreshDatalogData, refreshRate);
+				return;
+			}
+			var parsedData = JSON.parse(data);
+			var configData = getDatalogConfig();
+			//console.log(configData);
+			getDatalogConfig().maxPageNumber = Math.ceil(parsedData.length / configData.recordsPerPage);
+			var recordStart = (configData.currentPageNumber - 1) * configData.recordsPerPage;
+			var recordEnd = recordStart + configData.recordsPerPage;
+			var datalogData = parsedData.slice(recordStart, recordEnd);
+            console.log(datalogData);
+			console.log(configData);
+			selfWebView.postMessage({ command: 'updateDatalogData', datalogData: datalogData });
+			// selfWebView.postMessage({ command: 'sendConfigData', configData: configData });
+			
+			setTimeout(refreshDatalogData, refreshRate);
+		});
+	} catch (e) {
+		throw e;
+	}
+}
+
+if (fs.existsSync(logFilePath)) {
+	fs.unlinkSync(logFilePath);
+}
+
+refreshDatalogData();
 
 exports.DataLogPanel = DataLogPanel;

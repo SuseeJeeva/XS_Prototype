@@ -7,3 +7,20 @@
     border-collapse: collapse;
     padding: 10px;
   }
+
+#config{
+    display: flex;
+ }
+
+#config div{
+    display: flex;
+    margin-right: 14px;
+ }
+
+ input{
+    height: 20px;
+    width: 50px;
+    position: relative;
+    top: 20px;
+    left: 5px;
+}

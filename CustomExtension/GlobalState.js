@@ -18,7 +18,14 @@ const testMethodPackage = protoDescriptor.testmethod;
 var tfeData = {
 
 }
-var tableData =[];
+
+var datalogData = []
+var datalogConfig = {
+  recordsPerPage: 10,
+  currentPageNumber: 1,
+  maxPageNumber: 1,
+  refreshRate: 2000
+}
 
 var servers = [{
   name: "Server 1",
@@ -57,20 +64,13 @@ var servers = [{
     resumeSubscription: undefined,
     datalogSubscription: undefined
   },
-  sites: ["Site1", "Site2", "Site3"],
+  sites: ["Site1"],
   isActive: true
 }]
 
 exports.getTFEData = () => tfeData;
+exports.getDatalogData = () => datalogData;
+exports.getDatalogConfig = () => datalogConfig;
+exports.setDatalogConfig = (newData) => datalogConfig = newData;
 exports.setTFEData = (newTFEData) => tfeData = newTFEData;
 exports.getServers = () => servers;
-exports.getTableData = () => tableData;
-exports.setTableData = (data) => {
-  if(tableData.length<20) {
-    tableData.push(data);
-  }
-  else{
-    tableData.shift();
-    tableData.push(data);
-  }
-}
