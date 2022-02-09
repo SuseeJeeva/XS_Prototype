@@ -2,12 +2,14 @@ const vscode = acquireVsCodeApi();
 vscode.postMessage({
     command: 'syncDatalogConfigData'
   });
+
   
 console.log("Datalog index file is loaded");
 
 let recordsInput = document.getElementById("recordsInput");
 let currentPageInput = document.getElementById("currentPageInput");
 let refreshInput = document.getElementById("refreshInput");
+let maxPageNumber = document.getElementById("max");
 
 
 recordsInput.addEventListener('change', updateRecords);
@@ -50,30 +52,7 @@ function updateRefreshRate(e){
 }
 
   
-  function datalogger(tableData){
-    let table = document.getElementById("table2");
-    table.innerHTML = ``;
-    table.innerHTML= `<tr class="table-head">
-    <td>Server Name</td>
-    <td>Site</td>
-    <td>Measured Value</td>
-    <td>Test Method Name</td>
-</tr>`;
-    tableData.reverse();
-    tableData.forEach(data => {
-        var x = table.insertRow(1);
-        var a = x.insertCell(0);
-        var b = x.insertCell(1);
-        var c = x.insertCell(2);
-        var d = x.insertCell(3);
-        a.innerHTML=`${data.keyValuePair[3].Value}`;
-        b.innerHTML=`${data.keyValuePair[0].Value}`;
-        c.innerHTML=`${data.keyValuePair[1].Value}`;
-        d.innerHTML=`${data.keyValuePair[2].Value}`;
-    });
-    
-   
-  }
+
   
   function updateTableData(tableData){
     
@@ -102,20 +81,17 @@ function updateRefreshRate(e){
   }
 
   function updateDatalogConfig(data){
-    let recordsInput = document.getElementById("recordsInput");
-    let currentPageInput = document.getElementById("currentPageInput");
-    let maxPageNumber = document.getElementById("max");
-    let refreshInput = document.getElementById("refreshInput");
+    
     recordsInput.value = data.recordsPerPage;
     currentPageInput.value = data.currentPageNumber;
     maxPageNumber.innerHTML = `Max Page Number: ${data.maxPageNumber}`;
     refreshInput.value = data.refreshRate;
   }
 
-  function updateMaxPageNumber(data){
-    let maxPageNumber = document.getElementById("max");  
-    maxPageNumber.innerHTML = `Max Page Number: ${data.maxPageNumber}`;  
-  }
+//   function updateMaxPageNumber(data){
+//     let maxPageNumber = document.getElementById("max");  
+//     maxPageNumber.innerHTML = `Max Page Number: ${data}`;  
+//   }
 
   window.addEventListener('message', event => {
     switch (event.data.command) {
@@ -124,9 +100,6 @@ function updateRefreshRate(e){
         break;
       case 'updateDatalogConfig':
         updateDatalogConfig(event.data.datalogConfig);
-        break;
-      case 'updateMaxPageNumber':
-        updateMaxPageNumber(event.data.maxPageNumber);
         break;
     }
   });

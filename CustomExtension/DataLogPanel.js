@@ -266,7 +266,8 @@ function updateDatalogPanel(refreshRate) {
 			var datalogData = parsedData.slice(recordStart, recordEnd);
             console.log(datalogData);
 			console.log(configData);
-			selfWebView.postMessage({ command: 'updateMaxPageNumber', maxPageNumber: getDatalogConfig().maxPageNumber});
+			//selfWebView.postMessage({ command: 'updateMaxPageNumber', maxPageNumber: getDatalogConfig().maxPageNumber});
+			selfWebView.postMessage({ command: 'updateDatalogConfig', datalogConfig: getDatalogConfig()});
 			selfWebView.postMessage({ command: 'updateDatalogData', datalogData: datalogData });
 			// selfWebView.postMessage({ command: 'sendConfigData', configData: configData });
 			
