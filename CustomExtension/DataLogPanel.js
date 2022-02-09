@@ -120,7 +120,9 @@ var DataLogPanel = /** @class */ (function () {
 						return __generator(this, function (_a) {
 							switch (data.command) {
                               case 'updateDatalogConfig':
-								  setDatalogConfig(data.newConfigData);
+								  let newConfigDataTwo = data.newConfigData;
+								  newConfigDataTwo.maxPageNumber = getDatalogConfig().maxPageNumber
+								  setDatalogConfig(newConfigDataTwo);
 								  break;
 							}
 							return [2 /*return*/];
@@ -157,10 +159,10 @@ var DataLogPanel = /** @class */ (function () {
                 </head>
                 <body>
 				<div id="config">
-				<div><h4 id="records">Records per page: </h4><input id="inputOne" type="number" value="10"></div>
-				<div><h4 id="current">Current page: </h4><input id="inputTwo" type="number" value="1"></div>
-				<div><h4 id="max">Max page number: </h4><input id="inputThree" type="number" value="11"></div>
-				<div><h4 id="refresh">Refresh rate: </h4><input id="inputFour" type="number" value="2000"></div>
+				<div><h4 id="records">Records per page: </h4><input id="inputOne" type="number" min="0" value="10"></div>
+				<div><h4 id="current">Current page: </h4><input id="inputTwo" type="number" min="0" value="1"></div>
+				<div><h4 id="max">Max page number: ${getDatalogConfig().maxPageNumber} </h4></div>
+				<div><h4 id="refresh">Refresh rate: </h4><input id="inputFour" type="number" min="0" value="2000"></div>
                 </div>
 				<div class="tableComponent2" id="tableComponent2">
 				<table id="table2">

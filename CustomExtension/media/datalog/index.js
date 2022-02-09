@@ -4,20 +4,19 @@ const vscode = acquireVsCodeApi();
 console.log("Datalog index file is loaded");
 let inputOne = document.getElementById("inputOne");
 let inputTwo = document.getElementById("inputTwo");
-let inputThree = document.getElementById("inputThree");
+// let inputThree = document.getElementById("inputThree");
 let inputFour = document.getElementById("inputFour");
 
 
 inputOne.addEventListener('change', updateValueOne);
 inputTwo.addEventListener('change',updateValueTwo);
-inputThree.addEventListener('change',updateValueThree);
+// inputThree.addEventListener('change',updateValueThree);
 inputFour.addEventListener('change',updateValueFour);
 
 function updateValueOne(e){
    let newConfigData = {
       recordsPerPage: parseInt(e.target.value) ,
       currentPageNumber: parseInt(inputTwo.value),
-      maxPageNumber: parseInt(inputThree.value),
       refreshRate:parseInt(inputFour.value)
    }
    vscode.postMessage({
@@ -29,7 +28,6 @@ function updateValueTwo(e){
     let newConfigData = {
         recordsPerPage: parseInt(inputOne.value) ,
         currentPageNumber: parseInt(e.target.value),
-        maxPageNumber: parseInt(inputThree.value),
         refreshRate:parseInt(inputFour.value)
      }
      vscode.postMessage({
@@ -37,23 +35,22 @@ function updateValueTwo(e){
     });
 }
 
-function updateValueThree(e){
-    let newConfigData = {
-        recordsPerPage: parseInt(inputOne.value) ,
-        currentPageNumber: parseInt(inputTwo.value),
-        maxPageNumber: parseInt(e.target.value),
-        refreshRate:parseInt(inputFour.value)
-     }
-     vscode.postMessage({
-        command:'updateDatalogConfig', newConfigData:newConfigData
-    });
-}
+// function updateValueThree(e){
+//     let newConfigData = {
+//         recordsPerPage: parseInt(inputOne.value) ,
+//         currentPageNumber: parseInt(inputTwo.value),
+//         maxPageNumber: parseInt(e.target.value),
+//         refreshRate:parseInt(inputFour.value)
+//      }
+//      vscode.postMessage({
+//         command:'updateDatalogConfig', newConfigData:newConfigData
+//     });
+// }
 
 function updateValueFour(e){
     let newConfigData = {
         recordsPerPage: parseInt(inputOne.value) ,
         currentPageNumber: parseInt(inputTwo.value),
-        maxPageNumber:  parseInt(inputThree.value),
         refreshRate:  parseInt(e.target.value)
      }
      vscode.postMessage({
