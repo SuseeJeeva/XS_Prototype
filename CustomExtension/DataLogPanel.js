@@ -157,10 +157,10 @@ var DataLogPanel = /** @class */ (function () {
                 </head>
                 <body>
 				<div id="config">
-				<div><h5 id="records">Records per page: </h5><input id="inputOne" type="number" value="10"></div>
-				<div><h5 id="current">Current page: </h5><input id="inputTwo" type="number" value="1"></div>
-				<div><h5 id="max">Max page number: </h5><input id="inputThree" type="number" value="11"></div>
-				<div><h5 id="refresh">Refresh rate: </h5><input id="inputFour" type="number" value="2000"></div>
+				<div><h4 id="records">Records per page: </h4><input id="inputOne" type="number" value="10"></div>
+				<div><h4 id="current">Current page: </h4><input id="inputTwo" type="number" value="1"></div>
+				<div><h4 id="max">Max page number: </h4><input id="inputThree" type="number" value="11"></div>
+				<div><h4 id="refresh">Refresh rate: </h4><input id="inputFour" type="number" value="2000"></div>
                 </div>
 				<div class="tableComponent2" id="tableComponent2">
 				<table id="table2">

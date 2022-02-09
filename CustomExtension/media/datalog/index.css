@@ -19,7 +19,7 @@
 
  input{
     height: 20px;
-    width: 50px;
+    width: 55px !important;
     position: relative;
     top: 0px;
     left: 5px;
