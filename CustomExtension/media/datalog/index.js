@@ -21,43 +21,43 @@ function updateValueOne(e){
       refreshRate:parseInt(inputFour.value)
    }
    vscode.postMessage({
-       command:'updateDatalogConfig', data:newConfigData
+       command:'updateDatalogConfig', newConfigData :newConfigData
    });
 }
 
 function updateValueTwo(e){
     let newConfigData = {
-        recordsPerPage: inputOne.value ,
-        currentPageNumber: e.target.value,
-        maxPageNumber: inputThree.value,
-        refreshRate:inputFour.value
+        recordsPerPage: parseInt(inputOne.value) ,
+        currentPageNumber: parseInt(e.target.value),
+        maxPageNumber: parseInt(inputThree.value),
+        refreshRate:parseInt(inputFour.value)
      }
      vscode.postMessage({
-        command:'updateDatalogConfig', data:newConfigData
+        command:'updateDatalogConfig', newConfigData:newConfigData
     });
 }
 
 function updateValueThree(e){
     let newConfigData = {
-        recordsPerPage: inputOne.value ,
-        currentPageNumber: inputTwo.value,
-        maxPageNumber:  e.target.value,
-        refreshRate:inputFour.value
+        recordsPerPage: parseInt(inputOne.value) ,
+        currentPageNumber: parseInt(inputTwo.value),
+        maxPageNumber: parseInt(e.target.value),
+        refreshRate:parseInt(inputFour.value)
      }
      vscode.postMessage({
-        command:'updateDatalogConfig', data:newConfigData
+        command:'updateDatalogConfig', newConfigData:newConfigData
     });
 }
 
 function updateValueFour(e){
     let newConfigData = {
-        recordsPerPage: inputOne.value ,
-        currentPageNumber: inputTwo.value,
-        maxPageNumber:  inputThree.value,
-        refreshRate:  e.target.value
+        recordsPerPage: parseInt(inputOne.value) ,
+        currentPageNumber: parseInt(inputTwo.value),
+        maxPageNumber:  parseInt(inputThree.value),
+        refreshRate:  parseInt(e.target.value)
      }
      vscode.postMessage({
-        command:'updateDatalogConfig', data:newConfigData
+        command:'updateDatalogConfig', newConfigData:newConfigData
     });
 }
 
@@ -131,7 +131,6 @@ function updateValueFour(e){
 //   }
 
   window.addEventListener('message', event => {
-      debugger;
     switch (event.data.command) {
     //   case 'updateTableData':
     //     updateTableData(event.data.tableData);
