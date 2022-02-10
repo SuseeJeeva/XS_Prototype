@@ -10,6 +10,8 @@ const logFilePath = logFileDirectory + "logs.txt";
 
 const enableFileWriteOption = false;
 
+var counter = 0;
+
 if (fs.existsSync(logFilePath)) {
 	fs.unlinkSync(logFilePath);
 }
@@ -204,6 +206,7 @@ function subscribeDataLogTopic() {
 			ClientName: "DataLog"
 		});
 		server.subscription.datalogSubscription.on("data", (data) => {
+			// console.log(++counter);
 			data.keyValuePair.push({
 				"Key": "Server Name",
 				"Value": server.name
@@ -276,8 +279,8 @@ function updateDatalogPanelFromFileData(datalogConfig) {
 			if (last) {
 				console.log(counter);
 				getDatalogConfig().maxPageNumber = Math.ceil(counter / datalogConfig.recordsPerPage);
-				//selfWebView.postMessage({ command: 'updateDatalogConfig', datalogConfig: getDatalogConfig() });
-				selfWebView.postMessage({ command: 'updateDatalogData', datalogData: datalogData.slice().reverse() });
+				selfWebView.postMessage({ command: 'updateMaxPageNumber', maxPageNumber: getDatalogConfig().maxPageNumber });
+				selfWebView.postMessage({ command: 'updateDatalogData', datalogData: datalogData.reverse() });
 				setTimeout(refreshDatalogData, getDatalogConfig().refreshRate);
 				console.log("Read everything");
 				return false;
@@ -321,7 +324,7 @@ function updateDatalogPanelFromInMemoryData(datalogConfig) {
 		var stopIndex = startIndex + datalogConfig.recordsPerPage - 1;
 
 		var counter = 0;
-		var actualData = getDatalogData();
+		var actualData = getDatalogData().slice().reverse();
 		actualData.forEach((data) => {
 			counter++;
 			if (startIndex <= counter && counter <= stopIndex) {
@@ -337,7 +340,8 @@ function updateDatalogPanelFromInMemoryData(datalogConfig) {
 		})
 
 		getDatalogConfig().maxPageNumber = Math.ceil(counter / datalogConfig.recordsPerPage);
-		selfWebView.postMessage({ command: 'updateDatalogData', datalogData: datalogData });
+		selfWebView.postMessage({ command: 'updateMaxPageNumber', maxPageNumber: getDatalogConfig().maxPageNumber });
+		selfWebView.postMessage({ command: 'updateDatalogData', datalogData: datalogData.reverse() });
 		setTimeout(refreshDatalogData, getDatalogConfig().refreshRate);
 	} catch (e) {
 		throw e;

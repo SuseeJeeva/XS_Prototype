@@ -1,41 +1,32 @@
 const vscode = acquireVsCodeApi();
 
-let recordsInput = document.getElementById("recordsInput");
-let currentPageInput = document.getElementById("currentPageInput");
-let refreshInput = document.getElementById("refreshInput");
-let maxPageNumber = document.getElementById("max");
+let recordsInputElement = document.getElementById("recordsInput");
+let currentPageInputElement = document.getElementById("currentPageInput");
+let refreshInputElement = document.getElementById("refreshInput");
+let maxPageNumberElement = document.getElementById("max");
 
-recordsInput.addEventListener('change', updateRecords);
-currentPageInput.addEventListener('change', updateCurrentPageNumber);
-refreshInput.addEventListener('change', updateRefreshRate);
+recordsInputElement.addEventListener('change', updateRecords);
+currentPageInputElement.addEventListener('change', updateCurrentPageNumber);
+refreshInputElement.addEventListener('change', updateRefreshRate);
 
 function updateRecords(e) {
-  let newConfigData = {
-    recordsPerPage: parseInt(e.target.value),
-    currentPageNumber: parseInt(currentPageInput.value),
-    refreshRate: parseInt(refreshInput.value)
-  }
-  vscode.postMessage({
-    command: 'updateDatalogConfig', newConfigData: newConfigData
-  });
+  updateMaxPageNumber()
+  updateConfig(parseInt(e.target.value), parseInt(currentPageInputElement.value), parseInt(refreshInputElement.value));
 }
 
 function updateCurrentPageNumber(e) {
-  let newConfigData = {
-    recordsPerPage: parseInt(recordsInput.value),
-    currentPageNumber: parseInt(e.target.value),
-    refreshRate: parseInt(refreshInput.value)
-  }
-  vscode.postMessage({
-    command: 'updateDatalogConfig', newConfigData: newConfigData
-  });
+  updateConfig(parseInt(recordsInputElement.value), parseInt(e.target.value), parseInt(refreshInputElement.value));
 }
 
 function updateRefreshRate(e) {
+  updateConfig(parseInt(recordsInputElement.value), parseInt(currentPageInputElement.value), parseInt(e.target.value));
+}
+
+function updateConfig(recordsPerPage, currentPageNumber, refreshRate) {
   let newConfigData = {
-    recordsPerPage: parseInt(recordsInput.value),
-    currentPageNumber: parseInt(currentPageInput.value),
-    refreshRate: parseInt(e.target.value)
+    recordsPerPage: recordsPerPage,
+    currentPageNumber: currentPageNumber,
+    refreshRate: refreshRate
   }
   vscode.postMessage({
     command: 'updateDatalogConfig', newConfigData: newConfigData
@@ -65,10 +56,14 @@ function updateTableData(tableData) {
 }
 
 function updateDatalogConfig(data) {
-  recordsInput.value = data.recordsPerPage;
-  currentPageInput.value = data.currentPageNumber;
-  maxPageNumber.innerHTML = `Max Page Number: ${data.maxPageNumber}`;
-  refreshInput.value = data.refreshRate;
+  recordsInputElement.value = data.recordsPerPage;
+  currentPageInputElement.value = data.currentPageNumber;
+  maxPageNumberElement.innerHTML = `Max Page Number: ${Math.max(data.maxPageNumber, 1)}`;
+  refreshInputElement.value = data.refreshRate;
+}
+
+function updateMaxPageNumber(maxPageNumber) {
+  maxPageNumberElement.innerHTML = `Max Page Number: ${Math.max(maxPageNumber, 1)}`;
 }
 
 window.addEventListener('message', event => {
@@ -78,6 +73,9 @@ window.addEventListener('message', event => {
       break;
     case 'updateDatalogConfig':
       updateDatalogConfig(event.data.datalogConfig);
+      break;
+    case 'updateMaxPageNumber':
+      updateMaxPageNumber(event.data.maxPageNumber);
       break;
   }
 });
