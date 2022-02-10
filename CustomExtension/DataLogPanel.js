@@ -1,12 +1,14 @@
 "use strict";
 
 const vscode = require("vscode");
-const { getServers, getDatalogData, getDatalogConfig } = require('./GlobalState');
+const { getServers, getDatalogData, getDatalogConfig, setDatalogData } = require('./GlobalState');
 const fs = require('fs');
 var lineReader = require('reverse-line-reader');
 
 const logFileDirectory = __dirname + "/logs/";
 const logFilePath = logFileDirectory + "logs.txt";
+
+const enableFileWriteOption = false;
 
 if (fs.existsSync(logFilePath)) {
 	fs.unlinkSync(logFilePath);
@@ -207,24 +209,31 @@ function subscribeDataLogTopic() {
 				"Value": server.name
 			})
 			getDatalogData().push(data);
+
+			if (!enableFileWriteOption) {
+				setDatalogData(getDatalogData().reverse().splice(0, 2000).reverse());
+			}
 		})
 	});
 };
 
 function refreshDatalogData() {
-	console.log("Data Length - ", getDatalogData().length);
 	var datalogConfig = getDatalogConfig();
-	try {
-		if (getDatalogData().length > 0) {
-			var newDataAsString = getNewDataAsString();
-			updateLogFileWithNewData(newDataAsString, datalogConfig, updateDatalogPanel);
+	if (enableFileWriteOption) {
+		try {
+			if (getDatalogData().length > 0) {
+				var newDataAsString = getNewDataAsString();
+				updateLogFileWithNewData(newDataAsString, datalogConfig, updateDatalogPanelFromFileData);
+			}
+			else {
+				updateDatalogPanelFromFileData(datalogConfig);
+			}
+		} catch (e) {
+			console.log("Error on Datalog operation " + e);
+			setTimeout(refreshDatalogData, datalogConfig.refreshRate);
 		}
-		else {
-			updateDatalogPanel(datalogConfig);
-		}
-	} catch (e) {
-		console.log("Error on Datalog operation " + e);
-		setTimeout(refreshDatalogData, datalogConfig.refreshRate);
+	} else {
+		updateDatalogPanelFromInMemoryData(datalogConfig);
 	}
 }
 
@@ -250,7 +259,7 @@ function updateLogFileWithNewData(newDataAsString, datalogConfig, callbackFn) {
 	});
 }
 
-function updateDatalogPanel(datalogConfig) {
+function updateDatalogPanelFromFileData(datalogConfig) {
 	if (selfWebView == null) {
 		setTimeout(refreshDatalogData, getDatalogConfig().refreshRate);
 		return;
@@ -268,7 +277,7 @@ function updateDatalogPanel(datalogConfig) {
 				console.log(counter);
 				getDatalogConfig().maxPageNumber = Math.ceil(counter / datalogConfig.recordsPerPage);
 				//selfWebView.postMessage({ command: 'updateDatalogConfig', datalogConfig: getDatalogConfig() });
-				selfWebView.postMessage({ command: 'updateDatalogData', datalogData: datalogData.reverse() });
+				selfWebView.postMessage({ command: 'updateDatalogData', datalogData: datalogData.slice().reverse() });
 				setTimeout(refreshDatalogData, getDatalogConfig().refreshRate);
 				console.log("Read everything");
 				return false;
@@ -295,6 +304,41 @@ function updateDatalogPanel(datalogConfig) {
 			}
 			return true;
 		})
+	} catch (e) {
+		throw e;
+	}
+}
+
+function updateDatalogPanelFromInMemoryData(datalogConfig) {
+	if (selfWebView == null) {
+		setTimeout(refreshDatalogData, getDatalogConfig().refreshRate);
+		return;
+	}
+
+	try {
+		var datalogData = [];
+		var startIndex = ((datalogConfig.currentPageNumber - 1) * datalogConfig.recordsPerPage) + 1;
+		var stopIndex = startIndex + datalogConfig.recordsPerPage - 1;
+
+		var counter = 0;
+		var actualData = getDatalogData();
+		actualData.forEach((data) => {
+			counter++;
+			if (startIndex <= counter && counter <= stopIndex) {
+				var newData = [];
+				data.keyValuePair.forEach(keyValuePair => {
+					newData.push({
+						"Key": keyValuePair.Key,
+						"Value": keyValuePair.Value
+					})
+				})
+				datalogData.push(newData);
+			}
+		})
+
+		getDatalogConfig().maxPageNumber = Math.ceil(counter / datalogConfig.recordsPerPage);
+		selfWebView.postMessage({ command: 'updateDatalogData', datalogData: datalogData });
+		setTimeout(refreshDatalogData, getDatalogConfig().refreshRate);
 	} catch (e) {
 		throw e;
 	}
