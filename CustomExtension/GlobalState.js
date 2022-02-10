@@ -56,9 +56,9 @@ var server1 = {
     }
   },
   service: {
-    testMethodService: new testMethodPackage.TestMethod('localhost:30051', grpc.credentials.createInsecure()),
-    siteConfigurationService: new testMethodPackage.SiteConfiguration('localhost:30051', grpc.credentials.createInsecure()),
-    pubsubService: new testMethodPackage.PubSub('localhost:30051', grpc.credentials.createInsecure())
+    testMethodService: new testMethodPackage.TestMethod('192.168.1.19:30051', grpc.credentials.createInsecure()),
+    siteConfigurationService: new testMethodPackage.SiteConfiguration('192.168.1.19:30051', grpc.credentials.createInsecure()),
+    pubsubService: new testMethodPackage.PubSub('192.168.1.19:30051', grpc.credentials.createInsecure())
   },
   subscription: {
     resumeSubscription: undefined,
@@ -85,7 +85,7 @@ var server2 = {
       "pipeTransport": {
         "pipeProgram": `${__dirname}/plink.exe`,
         "pipeArgs": [
-          "soliton@192.168.1.19",
+          "soliton@192.168.1.20",
           "-pw",
           "login@123",
           "-batch",
@@ -97,16 +97,16 @@ var server2 = {
     }
   },
   service: {
-    testMethodService: new testMethodPackage.TestMethod('localhost:30051', grpc.credentials.createInsecure()),
-    siteConfigurationService: new testMethodPackage.SiteConfiguration('localhost:30051', grpc.credentials.createInsecure()),
-    pubsubService: new testMethodPackage.PubSub('localhost:30051', grpc.credentials.createInsecure())
+    testMethodService: new testMethodPackage.TestMethod('192.168.1.20:30051', grpc.credentials.createInsecure()),
+    siteConfigurationService: new testMethodPackage.SiteConfiguration('192.168.1.20:30051', grpc.credentials.createInsecure()),
+    pubsubService: new testMethodPackage.PubSub('192.168.1.20:30051', grpc.credentials.createInsecure())
   },
   subscription: {
     resumeSubscription: undefined,
     datalogSubscription: undefined
   },
   sites: ["Site 2"],
-  isActive: false
+  isActive: true
 }
 
 var servers = [server1, server2]
