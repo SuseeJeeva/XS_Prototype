@@ -33,6 +33,7 @@ namespace SemiContextNS
       var testMethodName = new StackFrame(1, true).GetMethod().DeclaringType.FullName.Split(".")[1];
       Parallel.ForEach(sites, site =>
       {
+        var counter = 0;
         var destinationPathChunks = destinationPath.Split("\\");
         destinationPathChunks[destinationPathChunks.Length - 1] = site + "_" + destinationPathChunks[destinationPathChunks.Length - 1];
 
@@ -46,7 +47,7 @@ namespace SemiContextNS
           foreach (string value in values)
           {
 
-            messenger.Send(GetLogInfo(site, value, testMethodName));
+            messenger.Send(GetLogInfo(site, (++counter).ToString(), testMethodName));
           }
         }
       });
