@@ -1,9 +1,11 @@
+.tableComponent2{
+  margin-left:40px
+}
 .table-head {
   background-color: var(--vscode-editor-background);
   font-weight: bolder;
 }
-#table2 td,
-#table2 {
+#table2 td{
   border: 1px solid black;
   border-collapse: collapse;
   padding: 10px;
@@ -11,6 +13,8 @@
 
 #config {
   display: flex;
+  margin-bottom: 20px;
+  margin-top: 10px;
 }
 
 #config div {
