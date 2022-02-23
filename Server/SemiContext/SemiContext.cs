@@ -14,6 +14,15 @@ namespace SemiContextNS
   {
     public static Messenger messenger;
     public List<string> sites = new List<string>();
+    public Dictionary<string, char> signatureMapping = new Dictionary<string, char>();
+
+    public SemiContext()
+    {
+      for (var i = 0; i < 256; i++)
+      {
+        signatureMapping.Add(Convert.ToString(i, 2).PadLeft(8, '0'), (char)i);
+      }
+    }
 
     [DllImport("generate_sort.dll")]
     private static extern void GenerateFile(StringBuilder path, StringBuilder resultfile);
@@ -71,27 +80,35 @@ namespace SemiContextNS
       var counter = 1;
       var initialcounter = 1;
 
-      StringBuilder stringBuilder = new StringBuilder();
+      StringBuilder characterBuilder = new StringBuilder();
+
+
+      StringBuilder returnValue = new StringBuilder();
       var bitmapInfo = new BitMapInfo();
       for (var rowNumber = 0; rowNumber < rowSize; rowNumber++)
       {
         counter = initialcounter;
         for (var columnNumber = 0; columnNumber < columnSize; columnNumber++)
         {
-          stringBuilder.Append(counter);
-          if (rowNumber != rowSize - 1 && columnNumber == columnSize - 1)
+          characterBuilder.Append(counter);
+          if (characterBuilder.Length == 8)
           {
-            stringBuilder.Append("\r\n");
+            returnValue.Append(signatureMapping[characterBuilder.ToString()]);
+            characterBuilder = new StringBuilder();
           }
-          else if (columnNumber != columnSize - 1)
-          {
-            stringBuilder.Append(",");
-          }
-            counter = (counter + 1) % 2;
+          //if (rowNumber != rowSize - 1 && columnNumber == columnSize - 1)
+          //{
+          //  stringBuilder.Append("\r\n");
+          //}
+          //else if (columnNumber != columnSize - 1)
+          //{
+          //  returnValue.Append(",");
+          //}
+          counter = (counter + 1) % 2;
         }
         initialcounter = (initialcounter + 1) % 2;
       }
-      bitmapInfo.Data = stringBuilder.ToString();
+      bitmapInfo.Data = returnValue.ToString();
       messenger.Send(bitmapInfo);
     }
 

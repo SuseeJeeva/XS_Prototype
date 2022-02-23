@@ -11,8 +11,8 @@ namespace TestProject
       var rand = new Random();
       for (var i = 0; i < 1000; i++)
       {
-        switch (rand.Next(0, 5))
-        //switch (0)
+        //switch (rand.Next(0, 5))
+        switch (0)
         {
           case 0:
             semiContext.GenerateCheckerBoardPattern();

@@ -31,6 +31,7 @@ let bitMapToolGraphData = {
   mainGraphRowPoints: [],
   mainGraphColumnPoints: [],
   mainGraphDataPoints: [],
+  mainGraphDataPointsInString: "",
   cursorGraphRowSamples: 200,
   cursorGraphColumnSamples: 5,
   cursorGraphRowScale: 999,

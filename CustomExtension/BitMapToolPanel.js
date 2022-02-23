@@ -11,6 +11,13 @@ let graphImageCounter = 1;
 let isMainGraphRenderInProgress = false;
 var selfWebView = undefined;
 
+let characterBuilder = {};
+
+for (let i = 0; i < 256; i++) {
+  let n = i.toString(2);
+  characterBuilder[String.fromCodePoint(i)] = "00000000".substring(n.length) + n;
+}
+
 if (fs.existsSync(graphDirectory)) {
   fs.rmdirSync(graphDirectory, { recursive: true });
 }
@@ -227,11 +234,11 @@ var BitMapToolPanel = /** @class */ (function () {
                     command: "syncData",
                     mainGraphRowPoints: bitMapToolGraphData.mainGraphRowPoints,
                     mainGraphColumnPoints: bitMapToolGraphData.mainGraphColumnPoints,
-                    mainGraphDataPoints: bitMapToolGraphData.mainGraphDataPoints,
+                    mainGraphDataPointsInString: bitMapToolGraphData.mainGraphDataPointsInString,
                     cursorGraphRowPoints: bitMapToolGraphData.cursorGraphRowPoints,
                     cursorGraphColumnPoints: bitMapToolGraphData.cursorGraphColumnPoints,
                     cursorGraphDataPoints: bitMapToolGraphData.cursorGraphDataPoints,
-                    loadConfiguration: getBitMapToolGraphData().exportGraphData,
+                    loadConfiguration: bitMapToolGraphData.exportGraphData,
                   });
                   break;
                 case "loadMainGraphData":
@@ -417,13 +424,13 @@ function loadMainGraphData(x, y) {
   var actualFileName = `${graphDirectory}${fileName}.txt`;
 
   if (fs.existsSync(actualFileName)) {
-    fs.readFile(actualFileName, "utf8", (err, data) => {
+    fs.readFile(actualFileName, "utf8", (err, encryptedData) => {
       if (err) {
         console.log(err);
         return;
       }
-      updateMainGraphDataWithString(data);
-      plotMainGraphWithStringData(data);
+      updateMainGraphDataWithString(encryptedData);
+      plotMainGraphWithStringData(encryptedData);
       isMainGraphRenderInProgress = false;
     });
   } else {
@@ -431,24 +438,12 @@ function loadMainGraphData(x, y) {
   }
 }
 
-function updateMainGraphDataWithString(stringData) {
-  let rowLines = stringData.split("\n");
-  let mainGraphData = [];
-  rowLines.forEach((row, index) => {
-    if (row.trim() === "") {
-      return;
-    }
-    mainGraphData[index] = row.split(",").map(Number);
-  });
-  getBitMapToolGraphData().updateMainGraphData(mainGraphData);
+function updateMainGraphDataWithString(encryptedData) {
+  getBitMapToolGraphData().updateMainGraphData(getDataInArrayFormat(DecryptData(encryptedData)));
 }
 
-function plotMainGraph() {
-  selfWebView.postMessage({ command: "plotMainGraph", mainGraphDataPoints: getBitMapToolGraphData().mainGraphDataPoints });
-}
-
-function plotMainGraphWithStringData(data) {
-  selfWebView.postMessage({ command: "plotMainGraphWithStringData", mainGraphDataPointsInString: data });
+function plotMainGraphWithStringData(encryptedData) {
+  selfWebView.postMessage({ command: "plotMainGraphWithStringData", mainGraphDataPointsInString: encryptedData });
 }
 
 function plotCursorGraph() {
@@ -465,17 +460,26 @@ function plotCursorGraph() {
       });
       server.subscription.bitmaptoolSubscription.on("data", (data) => {
         // console.timeEnd("Time taken to receive data");
-        // console.log("Total Samples Received - " + ++totolSamplesReceived);
         // console.time("Time taken to receive data");
         // return;
-        let receivedData = getDataInArrayFormat(data.Data);
+        console.time("Decryption");
+        let decryptedData = DecryptData(data.Data);
+        console.timeEnd("Decryption");
+        console.time("Array Format");
+        let receivedData = getDataInArrayFormat(decryptedData);
+        console.timeEnd("Array Format");
         let receivedDataInStringFormat = data.Data;
+        getBitMapToolGraphData().mainGraphDataPointsInString = data.Data;
         try {
+          console.time("Cursor Graph");
           updateCursorGraphPattern(receivedData);
+          console.timeEnd("Cursor Graph");
           if (isFirstSample) {
             isFirstSample = false;
+            console.time("Main Graph");
             getBitMapToolGraphData().updateMainGraphData(receivedData);
             plotMainGraphWithStringData(receivedDataInStringFormat);
+            console.timeEnd("Main Graph");
           }
           fs.appendFile(
             `${graphDirectory}${graphFileCounter++}.txt`,
@@ -495,13 +499,27 @@ function plotCursorGraph() {
     });
 })();
 
-function getDataInArrayFormat(data) {
-  let formattedData = [];
-  let rowData = data.split("\n");
-  rowData.forEach((row) => {
-    formattedData.push(row.split(",").map(Number));
-  });
-  return formattedData;
+function DecryptData(encryptedData) {
+  let decryptedDataArray = [];
+  for (let i = 0; i < encryptedData.length; i++) {
+    decryptedDataArray.push(characterBuilder[encryptedData[i]]);
+  }
+  return decryptedDataArray.join();
+}
+
+function getDataInArrayFormat(stringData) {
+  let mainGraphDataPoints = [];
+  let incrementer = 0;
+  let mainGraphRowPoints = getBitMapToolGraphData().mainGraphRowPoints;
+  let mainGraphColumnPoints = getBitMapToolGraphData().mainGraphColumnPoints;
+  for (let rowIndex in mainGraphRowPoints) {
+    let rowElement = [];
+    for (let columnIndex in mainGraphColumnPoints) {
+      rowElement.push(Array.from(stringData[incrementer++]).map(Number));
+    }
+    mainGraphDataPoints.push(rowElement);
+  }
+  return mainGraphDataPoints;
 }
 
 function updateCursorGraphPattern(mainGraphPattern) {

@@ -14,6 +14,22 @@ let hasPassValuesInMainGraph = true;
 let hasFailValuesInCursorGraph = true;
 let hasPassValuesInCursorGraph = true;
 
+let characterBuilder = {};
+let decryptedData = "";
+
+for (let i = 0; i < 256; i++) {
+  let n = i.toString(2);
+  characterBuilder[String.fromCodePoint(i)] = "00000000".substring(n.length) + n;
+}
+
+function DecryptData(encryptedData) {
+  let decryptedDataArray = [];
+  for (let i = 0; i < encryptedData.length; i++) {
+    decryptedDataArray.push(characterBuilder[encryptedData[i]]);
+  }
+  return decryptedDataArray.join();
+}
+
 function plotMainGraph() {
   function getColorScale() {
     if (hasFailValuesInMainGraph && hasPassValuesInMainGraph) {
@@ -193,13 +209,18 @@ function plotCursorGraph() {
 }
 
 function updateMainGraphDataWithString(stringData) {
-  var rowLines = stringData.split("\n");
-  rowLines.forEach((row, index) => {
-    if (row.trim() === "") {
-      return;
+  mainGraphDataPoints = [];
+  if (stringData === "") {
+    return;
+  }
+  let incrementer = 0;
+  for (let rowIndex in mainGraphRowPoints) {
+    let rowElement = [];
+    for (let columnIndex in mainGraphColumnPoints) {
+      rowElement.push(Array.from(stringData[incrementer++]).map(Number));
     }
-    mainGraphDataPoints[index] = row.split(",");
-  });
+    mainGraphDataPoints.push(rowElement);
+  }
 }
 
 function execute() {
@@ -475,14 +496,11 @@ window.addEventListener("message", (event) => {
     case "updateMainGraphColumnPoints":
       mainGraphColumnPoints = event.data.mainGraphColumnPoints;
       break;
-    case "plotMainGraph":
-      mainGraphDataPoints = event.data.mainGraphDataPoints;
-      plotMainGraph();
-      break;
     case "plotMainGraphWithStringData":
-      hasFailValuesInMainGraph = event.data.mainGraphDataPointsInString.includes("0");
-      hasPassValuesInMainGraph = event.data.mainGraphDataPointsInString.includes("1");
-      updateMainGraphDataWithString(event.data.mainGraphDataPointsInString);
+      decryptedData = DecryptData(event.data.mainGraphDataPointsInString);
+      hasFailValuesInMainGraph = decryptedData.includes("0");
+      hasPassValuesInMainGraph = decryptedData.includes("1");
+      updateMainGraphDataWithString(decryptedData);
       plotMainGraph();
       break;
     case "updateCursorGraphRowPoints":
@@ -501,12 +519,15 @@ window.addEventListener("message", (event) => {
     case "syncData":
       mainGraphRowPoints = event.data.mainGraphRowPoints;
       mainGraphColumnPoints = event.data.mainGraphColumnPoints;
-      mainGraphDataPoints = event.data.mainGraphDataPoints;
       cursorGraphRowPoints = event.data.cursorGraphRowPoints;
       cursorGraphColumnPoints = event.data.cursorGraphColumnPoints;
       cursorGraphDataPoints = event.data.cursorGraphDataPoints;
       loadConfiguration(event.data.loadConfiguration);
       plotCursorGraph();
+      decryptedData = DecryptData(event.data.mainGraphDataPointsInString);
+      hasFailValuesInMainGraph = decryptedData.includes("0");
+      hasPassValuesInMainGraph = decryptedData.includes("1");
+      updateMainGraphDataWithString(decryptedData);
       plotMainGraph();
       break;
     case "exportGraphData":
@@ -517,7 +538,6 @@ window.addEventListener("message", (event) => {
       break;
     case "loadConfiguration":
       loadConfiguration(event.data.data);
-      y;
       break;
   }
 });
