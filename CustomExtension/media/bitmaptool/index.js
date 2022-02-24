@@ -14,6 +14,8 @@ let hasPassValuesInMainGraph = true;
 let hasFailValuesInCursorGraph = true;
 let hasPassValuesInCursorGraph = true;
 
+let samples = 0;
+
 function plotMainGraph() {
   function getColorScale() {
     if (hasFailValuesInMainGraph && hasPassValuesInMainGraph) {
@@ -152,7 +154,7 @@ function plotCursorGraph() {
       margin: {
         l: 40,
         r: 10,
-        t: 0,
+        t: 20,
         b: 40,
       },
       xaxis: {
@@ -216,6 +218,13 @@ function onExportClick() {
   });
   vscode.postMessage({
     command: "exportGraphData",
+  });
+}
+
+function updateSamples(e) {
+  vscode.postMessage({
+    command: "updateSamples",
+    value: e.value,
   });
 }
 
@@ -522,6 +531,8 @@ window.addEventListener("message", (event) => {
       cursorGraphRowPoints = event.data.cursorGraphRowPoints;
       cursorGraphColumnPoints = event.data.cursorGraphColumnPoints;
       cursorGraphDataPoints = event.data.cursorGraphDataPoints;
+      samples = event.data.samples;
+      document.getElementById("samples").value = samples;
       loadConfiguration(event.data.loadConfiguration);
       plotCursorGraph();
       plotMainGraph();

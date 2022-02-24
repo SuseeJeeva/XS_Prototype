@@ -43,9 +43,10 @@ namespace TestMethodServer.Services
 			return Task.FromResult(new UploadStatus { Message = "DLL Loaded Successfully!!!" });
 		}
 
-		public override Task<Empty> ExecuteTestMethodForBitmapToolGraph(Empty request, ServerCallContext context)
+		public override Task<Empty> ExecuteTestMethodForBitmapToolGraph(BitMapToolRequest request, ServerCallContext context)
 		{
 			Console.WriteLine("Executing Bit Map Tool Test Method ...");
+			BaseTestMethod.semiContext.bitMapSamples = request.Samples;
 			var canExecuteTestFlow = LoadContext();
 			if (canExecuteTestFlow)
 			{

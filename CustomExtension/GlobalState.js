@@ -27,10 +27,11 @@ let datalogConfig = {
 };
 
 let bitMapToolGraphData = {
+  samples: 100,
   mainGraphRowPoints: [],
   mainGraphColumnPoints: [],
   mainGraphDataPoints: [],
-  cursorGraphRowSamples: 200,
+  cursorGraphRowSamples: 20,
   cursorGraphColumnSamples: 5,
   cursorGraphRowScale: 999,
   cursorGraphColumnScale: 999,
@@ -163,9 +164,25 @@ let bitMapToolGraphData = {
     let configuration = bitMapToolGraphData.exportGraphData.find((x) => x.index === index);
     bitMapToolGraphData.exportGraphData.splice(bitMapToolGraphData.exportGraphData.indexOf(configuration), 1);
   },
+  updateSamples: (samples) => {
+    bitMapToolGraphData.samples = parseInt(samples);
+    bitMapToolGraphData.cursorGraphRowSamples = bitMapToolGraphData.samples / bitMapToolGraphData.cursorGraphColumnSamples;
+    initializeBitMapToolGraph();
+  },
+  initializeBitMapToolGraph: () => {
+    initializeBitMapToolGraph();
+  },
 };
 
 function initializeBitMapToolGraph() {
+  bitMapToolGraphData.cursorGraphRowReference = 0;
+  bitMapToolGraphData.cursorGraphColumnReference = 0;
+  bitMapToolGraphData.mainGraphRowPoints = [];
+  bitMapToolGraphData.mainGraphColumnPoints = [];
+  bitMapToolGraphData.mainGraphDataPoints = [];
+  bitMapToolGraphData.cursorGraphRowPoints = [];
+  bitMapToolGraphData.cursorGraphColumnPoints = [];
+  bitMapToolGraphData.cursorGraphDataPoints = [];
   bitMapToolGraphData.cursorGraphRowRange = Math.ceil(bitMapToolGraphData.mainGraphRowCount / bitMapToolGraphData.cursorGraphRowScale) * bitMapToolGraphData.cursorGraphRowSamples;
   bitMapToolGraphData.cursorGraphColumnRange = Math.ceil(bitMapToolGraphData.mainGraphColumnCount / bitMapToolGraphData.cursorGraphColumnScale) * bitMapToolGraphData.cursorGraphColumnSamples;
 

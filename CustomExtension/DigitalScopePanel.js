@@ -309,9 +309,9 @@ var DigitalScopePanel = /** @class */ (function () {
         ClientName: "Digital Waveform Client",
       });
       server.subscription.digitalWaveformSubscription.on("data", (data) => {
-        console.timeEnd("Time taken to receive data");
-        console.log(data.Data.length);
-        console.time("Time taken to receive data");
+        //console.timeEnd("Time taken to receive data");
+        //console.log(data.Data.length);
+        //console.time("Time taken to receive data");
         let dataBasedOnChannels = data.Data.split("\r\n");
         appendDataToFile(dataBasedOnChannels);
         appendGraphData(dataBasedOnChannels);
@@ -385,7 +385,7 @@ function execute() {
   getServers()
     .filter((x) => x.isActive)
     .forEach((server) => {
-      console.time("Time taken to receive data");
+      //console.time("Time taken to receive data");
       server.service.testMethodService.ExecuteTestMethodForDigitalWaveformGraph({}, (err) => {
         console.log("Receiving gRPC Response from ExecuteTestMethodForDigitalWaveformGraph");
         if (err) {

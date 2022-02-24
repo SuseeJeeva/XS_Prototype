@@ -9,7 +9,7 @@ service TestMethod {
 	rpc UpdateDLL(Chunk) returns (UploadStatus) {}
 	rpc ResumeExecution(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc StopExecution(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc ExecuteTestMethodForBitmapToolGraph(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc ExecuteTestMethodForBitmapToolGraph(BitMapToolRequest) returns (google.protobuf.Empty) {}
 	rpc ExecuteTestMethodForDigitalWaveformGraph(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
@@ -22,6 +22,10 @@ service PubSub {
 
 service SiteConfiguration {
 	rpc UpdateSite(SiteRequest) returns (google.protobuf.Empty) {}
+}
+
+message BitMapToolRequest {
+	int32 samples = 1;
 }
 
 message SiteRequest {

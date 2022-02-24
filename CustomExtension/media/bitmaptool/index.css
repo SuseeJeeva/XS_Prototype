@@ -186,3 +186,7 @@ select {
   top: 0px;
   left: 5px;
 }
+
+input[type="number"]:focus {
+  outline: 0;
+}
