@@ -300,8 +300,8 @@ var BitMapToolPanel = /** @class */ (function () {
                   <div class="main-container" id="maincontainer">
                     <div class="function-buttons">
                       <button onclick="execute()" class="button-1">Fetch Graph Data</button>
-                      <div class="control-container">
-                        <div class="label pad-6-4">Samples</div>
+                      <div class="control-container wid-250">
+                        <div class="label pad-6-4">Blocks (4k Res)</div>
                         <input type="number" id="samples" min="5" onchange="updateSamples(this)" value="${getBitMapToolGraphData().samples}" step="${getBitMapToolGraphData().cursorGraphColumnSamples}"></input>
                       </div>
                     </div>

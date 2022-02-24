@@ -15,6 +15,8 @@ namespace SemiContextNS
     public static Messenger messenger;
     public List<string> sites = new List<string>();
     public int bitMapSamples = 100;
+    public int totalChannels = 512;
+    public int totalCycles = 100;
 
     [DllImport("generate_sort.dll")]
     private static extern void GenerateFile(StringBuilder path, StringBuilder resultfile);
@@ -64,31 +66,31 @@ namespace SemiContextNS
       });
     }
 
-    public void GenerateDigitalWaveformPattern(int cycles, int channels)
+    public void GenerateDigitalWaveformPattern()
     {
       var digitalWaveformInfo = new DigitalWaveformInfo();
-      var stringBuilders = GetNewStringBuilders(channels);
+      var stringBuilders = GetNewStringBuilders(totalChannels);
       var samplesLimit = 400;
       var hasData = false;
 
-      for (int cycle = 0; cycle < cycles; cycle++)
+      for (int cycle = 0; cycle < totalCycles; cycle++)
       {
-        for (int channel = 0; channel < channels; channel++)
+        for (int channel = 0; channel < totalChannels; channel++)
         {
           hasData = true;
           stringBuilders[channel].Append(GetCycleData());
         }
         if ((cycle + 1) % samplesLimit == 0)
         {
-          SendDigitalWaveformResponse(channels, stringBuilders, digitalWaveformInfo);
+          SendDigitalWaveformResponse(totalChannels, stringBuilders, digitalWaveformInfo);
           digitalWaveformInfo = new DigitalWaveformInfo();
-          stringBuilders = GetNewStringBuilders(channels);
+          stringBuilders = GetNewStringBuilders(totalChannels);
           hasData = false;
         }
       }
       if (hasData)
       {
-        SendDigitalWaveformResponse(channels, stringBuilders, digitalWaveformInfo);
+        SendDigitalWaveformResponse(totalChannels, stringBuilders, digitalWaveformInfo);
       }
     }
 

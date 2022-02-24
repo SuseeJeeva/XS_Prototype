@@ -8,7 +8,7 @@ namespace TestProject
   {
     public override void Execute()
     {
-      semiContext.GenerateDigitalWaveformPattern(100, 512);
+      semiContext.GenerateDigitalWaveformPattern();
     }
   }
 }

@@ -59,6 +59,14 @@ body {
   height: 25px;
 }
 
+.channel-container-header2 {
+  align-items: center;
+  display: flex;
+  font-size: 12px;
+  font-weight: bold;
+  height: 25px;
+}
+
 .channel-container-wrapper {
   border: 1px solid var(--vscode-editorWidget-border) !important;
   padding: 10px;
@@ -98,6 +106,16 @@ body {
   width: 500px;
 }
 
+.graph-config-container-wrapper {
+  border: 1px solid var(--vscode-editorWidget-border) !important;
+  height: 200px;
+  padding: 10px;
+}
+
+.graph-config-container {
+  margin-top: 10px;
+}
+
 .graph-container {
   display: flex;
   height: auto;
@@ -133,6 +151,15 @@ body {
 .main-container {
   height: 100%;
   width: 100%;
+}
+
+.mar-top-10 {
+  margin-top: 10px;
+}
+
+.numberbox {
+  height: 30px !important;
+  width: 150px !important;
 }
 
 .image-container {
@@ -192,6 +219,10 @@ input {
 }
 
 input[type="checkbox"]:focus {
+  outline: 0;
+}
+
+input[type="number"]:focus {
   outline: 0;
 }
 

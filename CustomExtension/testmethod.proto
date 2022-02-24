@@ -10,7 +10,7 @@ service TestMethod {
 	rpc ResumeExecution(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc StopExecution(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc ExecuteTestMethodForBitmapToolGraph(BitMapToolRequest) returns (google.protobuf.Empty) {}
-	rpc ExecuteTestMethodForDigitalWaveformGraph(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc ExecuteTestMethodForDigitalWaveformGraph(DigitalWaveformRequest) returns (google.protobuf.Empty) {}
 }
 
 service PubSub {
@@ -26,6 +26,11 @@ service SiteConfiguration {
 
 message BitMapToolRequest {
 	int32 samples = 1;
+}
+
+message DigitalWaveformRequest {
+	int32 totalChannels = 1;
+	int32 totalCycles = 2;
 }
 
 message SiteRequest {

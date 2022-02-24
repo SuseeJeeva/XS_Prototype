@@ -206,6 +206,8 @@ function initializeBitMapToolGraph() {
 initializeBitMapToolGraph();
 
 let digitalWaveformGraphData = {
+  totalChannels: 512,
+  totalCycles: 100,
   graphData: [],
   scrollCounter: 0,
   channels: [],
@@ -254,13 +256,21 @@ let digitalWaveformGraphData = {
       digitalWaveformGraphData.channels[index].isActive = value;
     }
   },
+  updateTotalChannels: (totalChannels) => {
+    digitalWaveformGraphData.totalChannels = totalChannels;
+    initializeDigitalWaveformGraph();
+  },
+  updateTotalCycles: (totalCycles) => {
+    digitalWaveformGraphData.totalCycles = totalCycles;
+  },
 };
 
 function initializeDigitalWaveformGraph() {
-  for (let i = 0; i < 512; i++) {
+  digitalWaveformGraphData.channels = [];
+  for (let i = 0; i < digitalWaveformGraphData.totalChannels; i++) {
     digitalWaveformGraphData.channels[i] = {
       name: `GPIO ${i}`,
-      isActive: false,
+      isActive: true,
       index: i,
     };
   }

@@ -145,6 +145,10 @@ body {
   visibility: hidden;
 }
 
+.wid-250 {
+  width: 250px;
+}
+
 #main-graph {
   height: 600px;
   width: 800px;
@@ -185,6 +189,10 @@ select {
   position: relative;
   top: 0px;
   left: 5px;
+}
+
+input[type="checkbox"]:focus {
+  outline: 0;
 }
 
 input[type="number"]:focus {

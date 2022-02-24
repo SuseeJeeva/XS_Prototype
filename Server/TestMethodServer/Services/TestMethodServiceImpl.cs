@@ -56,9 +56,11 @@ namespace TestMethodServer.Services
 			return Task.FromResult(new Empty { });
 		}
 
-		public override Task<Empty> ExecuteTestMethodForDigitalWaveformGraph(Empty request, ServerCallContext context)
+		public override Task<Empty> ExecuteTestMethodForDigitalWaveformGraph(DigitalWaveformRequest request, ServerCallContext context)
 		{
 			Console.WriteLine("Executing Digital Waveform Test Method ...");
+			BaseTestMethod.semiContext.totalChannels = request.TotalChannels;
+			BaseTestMethod.semiContext.totalCycles = request.TotalCycles;
 			var canExecuteTestFlow = LoadContext();
 			if (canExecuteTestFlow)
 			{

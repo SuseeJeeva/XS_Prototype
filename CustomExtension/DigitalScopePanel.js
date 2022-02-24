@@ -6,8 +6,6 @@ const nodeHtmlToImage = require("node-html-to-image");
 const { getServers, getDigitalWaveformGraphData } = require("./GlobalState");
 const graphDirectory = __dirname + "/digitalgraphdata/";
 
-const noOfChannels = 512;
-
 var selfWebView = undefined;
 
 clearGraphDirectory();
@@ -236,6 +234,12 @@ var DigitalScopePanel = /** @class */ (function () {
                 case "cursorsUpdated":
                   updateCursors(data.value);
                   break;
+                case "updateTotalChannels":
+                  updateTotalChannels(data.value);
+                  break;
+                case "updateTotalCycles":
+                  updateTotalCycles(data.value);
+                  break;
               }
               return [2 /*return*/];
             });
@@ -273,6 +277,15 @@ var DigitalScopePanel = /** @class */ (function () {
                     <div class="graph-container">
                       <div id="graph"></div>
                       <div class="graph-controls">
+                        <div class="graph-config-container-wrapper">
+                          <div class="channel-container-header">Graph Configuration</div>
+                          <div class="graph-config-container">
+                            <div class="channel-container-header2">Total Channels</div>
+                            <input class="numberbox" type="number" id="totalchannels" min="1" onchange="updateTotalChannels(this)" value="${getDigitalWaveformGraphData().totalChannels}"></input>
+                            <div class="channel-container-header2 mar-top-10">Total Cycles</div>
+                            <input class="numberbox" type="number" id="totalCycles" min="1" onchange="updateTotalCycles(this)" value="${getDigitalWaveformGraphData().totalCycles}"></input>
+                          </div>
+                        </div>
                         <div class="channel-container-wrapper">
                           <div class="channel-container-header">Channel Configuration</div>
                           <div class="channel-container" id="channelcontainer"></div>
@@ -287,7 +300,6 @@ var DigitalScopePanel = /** @class */ (function () {
                             </select>
                           </div>
                         </div>
-                        <div class="scale-container"></div>
                       </div>
                     </div>
                   </div>
@@ -300,6 +312,15 @@ var DigitalScopePanel = /** @class */ (function () {
   DigitalScopePanel.viewType = "DigitalScopePanel";
   return DigitalScopePanel;
 })();
+
+function updateTotalChannels(value) {
+  getDigitalWaveformGraphData().updateTotalChannels(value);
+  selfWebView.postMessage({ command: "updateTotalChannels", allChannels: getDigitalWaveformGraphData().getAllChannels() });
+}
+
+function updateTotalCycles(value) {
+  getDigitalWaveformGraphData().updateTotalCycles(value);
+}
 
 (function SubscribeDigitalWaveformGraph() {
   getServers()
@@ -363,7 +384,7 @@ function updateAnnotations(data) {
 }
 
 function appendDataToFile(data) {
-  for (let i = 0; i < noOfChannels; i++) {
+  for (let i = 0; i < getDigitalWaveformGraphData().totalChannels; i++) {
     fs.appendFile(
       `${graphDirectory}${i}.txt`,
       data[i],
@@ -386,14 +407,20 @@ function execute() {
     .filter((x) => x.isActive)
     .forEach((server) => {
       //console.time("Time taken to receive data");
-      server.service.testMethodService.ExecuteTestMethodForDigitalWaveformGraph({}, (err) => {
-        console.log("Receiving gRPC Response from ExecuteTestMethodForDigitalWaveformGraph");
-        if (err) {
-          console.log(err);
-        } else {
-          vscode.window.showInformationMessage("Test Method Executed Successfully...");
+      server.service.testMethodService.ExecuteTestMethodForDigitalWaveformGraph(
+        {
+          totalChannels: getDigitalWaveformGraphData().totalChannels,
+          totalCycles: getDigitalWaveformGraphData().totalCycles,
+        },
+        (err) => {
+          console.log("Receiving gRPC Response from ExecuteTestMethodForDigitalWaveformGraph");
+          if (err) {
+            console.log(err);
+          } else {
+            vscode.window.showInformationMessage("Test Method Executed Successfully...");
+          }
         }
-      });
+      );
     });
 }
 

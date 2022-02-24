@@ -243,28 +243,19 @@ function updateChannels(channels) {
   });
 }
 
-window.addEventListener("message", (event) => {
-  switch (event.data.command) {
-    case "updateGraph":
-      generateTraces(event.data.dataPoints);
-      updateChannels(event.data.allChannels);
-      setMaxScrollCounter(event.data.maxScrollCounter);
-      updateAnnotations();
-      plotGraph();
-      break;
-    case "syncData":
-      generateTraces(event.data.dataPoints);
-      updateChannels(event.data.allChannels);
-      scrollCounter = event.data.scrollCounter;
-      setMaxScrollCounter(event.data.maxScrollCounter);
-      annotations = event.data.annotations;
-      cursorMode = event.data.cursorMode;
-      cursors = event.data.cursors;
-      updateLocals();
-      plotGraph();
-      break;
-  }
-});
+function updateTotalChannels(e) {
+  vscode.postMessage({
+    command: "updateTotalChannels",
+    value: e.value,
+  });
+}
+
+function updateTotalCycles(e) {
+  vscode.postMessage({
+    command: "updateTotalCycles",
+    value: e.value,
+  });
+}
 
 cursorSelection.onchange = function () {
   cursorMode = this.value == "Horizontal" ? this.value : this.value == "Vertical" ? this.value : "Disabled";
@@ -429,6 +420,32 @@ function updateAnnotations() {
     value: annotations,
   });
 }
+
+window.addEventListener("message", (event) => {
+  switch (event.data.command) {
+    case "updateGraph":
+      generateTraces(event.data.dataPoints);
+      updateChannels(event.data.allChannels);
+      setMaxScrollCounter(event.data.maxScrollCounter);
+      updateAnnotations();
+      plotGraph();
+      break;
+    case "syncData":
+      generateTraces(event.data.dataPoints);
+      updateChannels(event.data.allChannels);
+      scrollCounter = event.data.scrollCounter;
+      setMaxScrollCounter(event.data.maxScrollCounter);
+      annotations = event.data.annotations;
+      cursorMode = event.data.cursorMode;
+      cursors = event.data.cursors;
+      updateLocals();
+      plotGraph();
+      break;
+    case "updateTotalChannels":
+      updateChannels(event.data.allChannels);
+      break;
+  }
+});
 
 vscode.postMessage({
   command: "syncData",
