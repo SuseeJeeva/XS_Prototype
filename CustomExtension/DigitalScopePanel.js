@@ -212,6 +212,7 @@ var DigitalScopePanel = /** @class */ (function () {
                     cursorMode: digitalWaveformGraphData.cursorMode,
                     annotations: digitalWaveformGraphData.annotations,
                     cursors: digitalWaveformGraphData.cursors,
+                    cursorTracker: digitalWaveformGraphData.cursorTracker,
                   });
                   break;
                 case "execute":
@@ -239,6 +240,12 @@ var DigitalScopePanel = /** @class */ (function () {
                   break;
                 case "updateTotalCycles":
                   updateTotalCycles(data.value);
+                  break;
+                case "updateCursorTracker":
+                  updateCursorTracker(data.value);
+                  break;
+                case "clearCursorData":
+                  clearCursorData();
                   break;
               }
               return [2 /*return*/];
@@ -300,6 +307,7 @@ var DigitalScopePanel = /** @class */ (function () {
                               <option value="Vertical">Vertical</option>
                               <option value="Horizontal">Horizontal</option>
                             </select>
+                            <button onclick="clearCursorData()" class="button-1">Clear Cursors</button>
                           </div>
                         </div>
                       </div>
@@ -315,6 +323,16 @@ var DigitalScopePanel = /** @class */ (function () {
   return DigitalScopePanel;
 })();
 
+function clearCursorData() {
+  var digitalWaveformGraphData = getDigitalWaveformGraphData();
+  digitalWaveformGraphData.cursors = [];
+  digitalWaveformGraphData.cursorTracker = {
+    globalX: [],
+    globalY: [],
+  };
+  digitalWaveformGraphData.annotations.cursorAnnotations = [];
+}
+
 function updateTotalChannels(value) {
   getDigitalWaveformGraphData().updateTotalChannels(value);
   selfWebView.postMessage({ command: "updateTotalChannels", allChannels: getDigitalWaveformGraphData().getAllChannels() });
@@ -322,6 +340,10 @@ function updateTotalChannels(value) {
 
 function updateTotalCycles(value) {
   getDigitalWaveformGraphData().updateTotalCycles(value);
+}
+
+function updateCursorTracker(data) {
+  getDigitalWaveformGraphData().cursorTracker = data;
 }
 
 (function SubscribeDigitalWaveformGraph() {

@@ -12,9 +12,10 @@ let axisValAnnotations = [];
 let tracesAnnotations = [];
 let cursorAnnotations = [];
 let annotations;
-
+let cursorTracker;
 let cursorClicked;
 let attachListenersFirstTime = true;
+let xAxisCursorValue;
 let cursorMovementDecision;
 
 let plotHandle = document.getElementById("graph");
@@ -80,6 +81,20 @@ function execute() {
   });
 }
 
+function clearCursorData() {
+  layout.shapes = [];
+  cursors = [];
+  globalX = [];
+  globalY = [];
+  cursorAnnotations = [];
+  cursorTracker = {};
+  updateAnnotations();
+  Plotly.relayout(plotHandle, layout);
+  vscode.postMessage({
+    command: "clearCursorData",
+  });
+}
+
 function generateTraces(dataPoints) {
   dataPoints.reverse();
   data = [];
@@ -138,6 +153,21 @@ function generateTraces(dataPoints) {
           family: "Arial",
           size: 10,
           color: "green",
+        },
+        showarrow: false,
+      });
+      tracesAnnotations.push({
+        xref: "paper",
+        yref: "y",
+        x: 1,
+        y: (maxValue - minValue) / 2,
+        xanchor: "left",
+        yanchor: "center",
+        text: `${data.name}`,
+        font: {
+          family: "Arial",
+          size: 12,
+          color: "white",
         },
         showarrow: false,
       });
@@ -274,22 +304,29 @@ function updateLocals() {
   tracesAnnotations = annotations.tracesAnnotations;
   cursorAnnotations = annotations.cursorAnnotations;
   layout.annotations = axisValAnnotations.concat(tracesAnnotations, cursorAnnotations);
+  globalX = cursorTracker.globalX;
+  globalY = cursorTracker.globalY;
 }
 
 function attachGraphListeners() {
+  let yClicked;
+  let xClicked;
   plotHandle.addEventListener("mousedown", function (evt) {
     var bb = evt.target.getBoundingClientRect();
     var x = plotHandle._fullLayout.xaxis.p2d(evt.clientX - bb.left).toFixed();
     var y = plotHandle._fullLayout.yaxis.p2d(evt.clientY - bb.top).toFixed(2);
     if (cursorMode == "Vertical") {
       for (let i = 0; i < cursors.length; i++) {
-        if (cursors[i].x0 == x || (cursors[i].x0 <= x + cursorMovementDecision && cursors[i].x0 >= x - cursorMovementDecision)) {
+        if (cursors[i].x0 == x || (cursors[i].x0 <= x && cursors[i].x0 >= x)) {
           if (evt.button === 2) {
             cursors.splice(i, 1);
-            globalX.splice(i, 1);
+            globalX.filter(function (el) {
+              return el != x;
+            });
             cursorAnnotations.splice(i, 1);
           } else {
             cursorClicked = i;
+            xClicked = x;
             cursors[i].opacity = 0.3;
             cursorAnnotations[i].opacity = 0.3;
           }
@@ -304,10 +341,13 @@ function attachGraphListeners() {
         if (cursors[i].y0 == y) {
           if (evt.button === 2) {
             cursors.splice(i, 1);
-            globalY.splice(i, 1);
+            globalY.filter(function (el) {
+              return el != y;
+            });
             cursorAnnotations.splice(i, 1);
           } else {
             cursorClicked = i;
+            yClicked = y;
             cursors[i].opacity = 0.3;
             cursorAnnotations[i].opacity = 0.3;
           }
@@ -317,6 +357,7 @@ function attachGraphListeners() {
         }
       }
     }
+    updateCursorTracker();
   });
 
   plotHandle.addEventListener("click", function (evt) {
@@ -324,13 +365,19 @@ function attachGraphListeners() {
       if (cursorClicked < cursors.length) {
         cursors.splice(cursorClicked, 1);
         if (cursorMode == "Vertical") {
-          globalX.splice(cursorClicked, 1);
+          globalX.filter(function (el) {
+            return el != xClicked;
+          });
         } else if (cursorMode == "Horizontal") {
-          globalY.splice(cursorClicked, 1);
+          globalY.filter(function (el) {
+            return el != yClicked;
+          });
         }
 
         cursorAnnotations.splice(cursorClicked, 1);
         cursorClicked = undefined;
+        xClicked = undefined;
+        yClicked = undefined;
       }
       var bb = evt.target.getBoundingClientRect();
       var xCoordinate = plotHandle._fullLayout.xaxis.p2d(evt.clientX - bb.left).toFixed();
@@ -339,9 +386,23 @@ function attachGraphListeners() {
         globalX[globalX.length] = xCoordinate;
       } else if (cursorMode == "Horizontal" && !globalY.includes(yCoordinate)) {
         globalY[globalY.length] = yCoordinate;
+        let factoredValue = (yCoordinate * 10) % 1;
+        xAxisCursorValue = factoredValue >= 0.2 && factoredValue <= 0.8 ? (factoredValue - 0.2) * 2 * 3.3 : 0.0;
+        if (xAxisCursorValue > 3.3) {
+          xAxisCursorValue = 3.3;
+        }
       }
+      updateCursorTracker();
       drawYellowLine();
     }
+  });
+}
+
+function updateCursorTracker() {
+  cursorTracker = { globalX, globalY };
+  vscode.postMessage({
+    command: "updateCursorTracker",
+    value: cursorTracker,
   });
 }
 
@@ -366,7 +427,7 @@ function drawYellowLine() {
       y: globalY[globalY.length - 1],
       xref: "paper",
       x: 0,
-      text: globalY[globalY.length - 1],
+      text: Math.round(xAxisCursorValue * 10) / 10,
       showarrow: false,
       font: {
         size: 12,
@@ -438,6 +499,7 @@ window.addEventListener("message", (event) => {
       annotations = event.data.annotations;
       cursorMode = event.data.cursorMode;
       cursors = event.data.cursors;
+      cursorTracker = event.data.cursorTracker;
       updateLocals();
       plotGraph();
       break;
