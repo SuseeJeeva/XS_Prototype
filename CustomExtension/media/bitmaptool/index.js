@@ -422,11 +422,7 @@ function exportGraphData(rowPoints, columnPoints, dataPoints) {
         visible: false,
       },
     },
-    {
-      displaylogo: false,
-      displayModeBar: true,
-      modeBarButtons: [["pan2d"], ["zoom2d"], ["zoomIn2d"], ["zoomOut2d"], ["autoScale2d"], ["select2d"]],
-    }
+    { displayModeBar: false }
   ).then((gd) => {
     vscode.postMessage({
       command: "generateSnapshot",
