@@ -3,7 +3,7 @@ body {
   display: flex;
   flex-direction: column;
   font-family: sans-serif !important;
-  height: calc(100% - 50px);
+  height: 768px;
   justify-content: center;
   margin: 25px;
   position: relative;
@@ -51,9 +51,27 @@ body {
   transform: scale(0.95);
 }
 
+.channel-container-header {
+  align-items: center;
+  display: flex;
+  font-size: 14px;
+  font-weight: bold;
+  height: 25px;
+}
+
+.channel-container-wrapper {
+  border: 1px solid var(--vscode-editorWidget-border) !important;
+  padding: 10px;
+}
+
 .channel-container {
-  background: green;
-  height: 30%;
+  height: 175px;
+  overflow: auto;
+}
+
+.channel-label {
+  align-items: center;
+  display: flex;
 }
 
 .control-container {
@@ -63,7 +81,6 @@ body {
 }
 
 .cursor-container {
-  background: orange;
   height: 30%;
 }
 
@@ -81,8 +98,7 @@ body {
 }
 
 .graph-controls {
-  background: red;
-  margin-left: 10px;
+  margin: 50px;
   width: 400px;
 }
 
@@ -136,23 +152,20 @@ body {
 }
 
 .scale-container {
-  background: yellow;
   height: 40%;
+}
+
+.selectcontainer {
+  display: flex;
 }
 
 .visibility-hide {
   visibility: hidden;
 }
 
-#main-graph {
+#graph {
   height: 600px;
   width: 800px;
-}
-
-#download-graph {
-  display: none;
-  height: 2160px;
-  width: 3840px;
 }
 
 #imageelement {
@@ -161,12 +174,17 @@ body {
 }
 
 input {
+  background: var(--vscode-button-background);
   border: 1px solid var(--vscode-editorWidget-border) !important;
-  height: 20px;
-  width: 70px !important;
+  height: 16px;
+  width: 35px !important;
   position: relative;
   top: 0px;
   left: 5px;
+}
+
+input[type="checkbox"]:focus {
+  outline: 0;
 }
 
 select {

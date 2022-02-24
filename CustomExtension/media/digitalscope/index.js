@@ -129,15 +129,71 @@ function setMaxScrollCounter(activeChannelCount) {
   }
 }
 
+function updateChannels(channels) {
+  var channelContainer = document.getElementById("channelcontainer");
+  channelContainer.innerHTML = "";
+
+  let selectContainer = document.createElement("div");
+  selectContainer.classList.add("selectcontainer");
+
+  let checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.checked = channels.find((x) => !x.isActive) ? false : true;
+  checkbox.addEventListener("click", (e) => {
+    vscode.postMessage({
+      command: "updateChannelActive",
+      value: e.target.checked,
+      index: -1,
+    });
+  });
+
+  selectContainer.append(checkbox);
+
+  let label = document.createElement("div");
+  label.classList.add("bold");
+  label.classList.add("channel-label");
+  label.innerHTML = "Select All";
+  selectContainer.append(label);
+
+  channelContainer.append(selectContainer);
+
+  channels.forEach((channel) => {
+    let selectContainer = document.createElement("div");
+    selectContainer.classList.add("selectcontainer");
+
+    let checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = channel.isActive;
+    checkbox.addEventListener("click", (e) => {
+      vscode.postMessage({
+        command: "updateChannelActive",
+        value: e.target.checked,
+        index: channel.index,
+      });
+    });
+
+    selectContainer.append(checkbox);
+
+    let label = document.createElement("div");
+    label.classList.add("channel-label");
+    label.innerHTML = channel.name;
+    selectContainer.append(label);
+
+    channelContainer.append(selectContainer);
+  });
+}
+
 window.addEventListener("message", (event) => {
   switch (event.data.command) {
     case "updateGraph":
       generateTraces(event.data.dataPoints);
+      updateChannels(event.data.allChannels);
       setMaxScrollCounter(event.data.maxScrollCounter);
       plotGraph();
       break;
     case "syncData":
       generateTraces(event.data.dataPoints);
+      updateChannels(event.data.allChannels);
       scrollCounter = event.data.scrollCounter;
       setMaxScrollCounter(event.data.maxScrollCounter);
       plotGraph();

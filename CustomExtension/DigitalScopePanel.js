@@ -207,9 +207,10 @@ var DigitalScopePanel = /** @class */ (function () {
                   let digitalWaveformGraphData = getDigitalWaveformGraphData();
                   selfWebView.postMessage({
                     command: "syncData",
+                    allChannels: digitalWaveformGraphData.getAllChannels(),
                     dataPoints: digitalWaveformGraphData.graphData,
                     scrollCounter: digitalWaveformGraphData.scrollCounter,
-                    maxScrollCounter: digitalWaveformGraphData.getActiveChannels().length - digitalWaveformGraphData.channelsPerView,
+                    maxScrollCounter: Math.max(digitalWaveformGraphData.getActiveChannels().length - digitalWaveformGraphData.channelsPerView, 0),
                   });
                   break;
                 case "execute":
@@ -217,7 +218,12 @@ var DigitalScopePanel = /** @class */ (function () {
                   execute();
                   break;
                 case "updateScrollCounter":
-                  fetchData(data.value);
+                  getDigitalWaveformGraphData().scrollCounter = data.value;
+                  fetchData();
+                  break;
+                case "updateChannelActive":
+                  getDigitalWaveformGraphData().updateChannelActive(data.index, data.value);
+                  fetchData();
                   break;
               }
               return [2 /*return*/];
@@ -256,7 +262,10 @@ var DigitalScopePanel = /** @class */ (function () {
                     <div class="graph-container">
                       <div id="graph"></div>
                       <div class="graph-controls">
-                        <div class="channel-container"></div>
+                        <div class="channel-container-wrapper">
+                          <div class="channel-container-header">Channel Configuration</div>
+                          <div class="channel-container" id="channelcontainer"></div>
+                        </div>
                         <div class="cursor-container"></div>
                         <div class="scale-container"></div>
                       </div>
@@ -291,17 +300,20 @@ var DigitalScopePanel = /** @class */ (function () {
     });
 })();
 
-async function fetchData(value) {
+async function fetchData() {
   let digitalWaveformGraphData = getDigitalWaveformGraphData();
-  digitalWaveformGraphData.scrollCounter = value;
   let activeChannels = digitalWaveformGraphData.getActiveChannelsBasedOnScrollCounter();
-  let graphData = await fetchActiveChannelsInfo(activeChannels);
-  updateGraphData(graphData);
+  if (activeChannels.length === 0) {
+    updateGraphData([]);
+  } else {
+    let graphData = await fetchActiveChannelsInfo(activeChannels);
+    updateGraphData(graphData);
+  }
 }
 
 function updateGraph() {
   var digitalWaveformGraphData = getDigitalWaveformGraphData();
-  selfWebView.postMessage({ command: "updateGraph", dataPoints: digitalWaveformGraphData.graphData, maxScrollCounter: digitalWaveformGraphData.getActiveChannels().length - digitalWaveformGraphData.channelsPerView });
+  selfWebView.postMessage({ command: "updateGraph", dataPoints: digitalWaveformGraphData.graphData, maxScrollCounter: Math.max(digitalWaveformGraphData.getActiveChannels().length - digitalWaveformGraphData.channelsPerView, 0), allChannels: digitalWaveformGraphData.getAllChannels() });
 }
 
 function appendGraphData(data) {

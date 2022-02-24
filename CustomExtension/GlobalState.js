@@ -198,6 +198,9 @@ let digitalWaveformGraphData = {
   getActiveChannels: () => {
     return digitalWaveformGraphData.channels.filter((x) => x.isActive);
   },
+  getAllChannels: () => {
+    return digitalWaveformGraphData.channels;
+  },
   getActiveChannelsBasedOnScrollCounter: () => {
     return digitalWaveformGraphData.channels.filter((x) => x.isActive).slice(digitalWaveformGraphData.scrollCounter, digitalWaveformGraphData.scrollCounter + digitalWaveformGraphData.channelsPerView);
   },
@@ -217,6 +220,15 @@ let digitalWaveformGraphData = {
       digitalWaveformGraphData.graphData[i] = "";
     }
   },
+  updateChannelActive: (index, value) => {
+    if (index === -1) {
+      for (let i = 0; i < digitalWaveformGraphData.channels.length; i++) {
+        digitalWaveformGraphData.channels[i].isActive = value;
+      }
+    } else {
+      digitalWaveformGraphData.channels[index].isActive = value;
+    }
+  },
 };
 
 function initializeDigitalWaveformGraph() {
@@ -230,9 +242,9 @@ function initializeDigitalWaveformGraph() {
 
   digitalWaveformGraphData.resetGraphData();
 
-  for (let i = 0; i < 20; i++) {
-    digitalWaveformGraphData.channels[i].isActive = true;
-  }
+  // for (let i = 0; i < 20; i++) {
+  //   digitalWaveformGraphData.channels[i].isActive = true;
+  // }
 }
 
 initializeDigitalWaveformGraph();
