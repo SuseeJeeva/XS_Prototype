@@ -211,6 +211,9 @@ var DigitalScopePanel = /** @class */ (function () {
                     dataPoints: digitalWaveformGraphData.graphData,
                     scrollCounter: digitalWaveformGraphData.scrollCounter,
                     maxScrollCounter: Math.max(digitalWaveformGraphData.getActiveChannels().length - digitalWaveformGraphData.channelsPerView, 0),
+                    cursorMode: digitalWaveformGraphData.cursorMode,
+                    annotations: digitalWaveformGraphData.annotations,
+                    cursors: digitalWaveformGraphData.cursors,
                   });
                   break;
                 case "execute":
@@ -224,6 +227,14 @@ var DigitalScopePanel = /** @class */ (function () {
                 case "updateChannelActive":
                   getDigitalWaveformGraphData().updateChannelActive(data.index, data.value);
                   fetchData();
+                case "cursorModeChanged":
+                  updateCursorMode(data.value);
+                  break;
+                case "annotationsUpdated":
+                  updateAnnotations(data.value);
+                  break;
+                case "cursorsUpdated":
+                  updateCursors(data.value);
                   break;
               }
               return [2 /*return*/];
@@ -266,7 +277,13 @@ var DigitalScopePanel = /** @class */ (function () {
                           <div class="channel-container-header">Channel Configuration</div>
                           <div class="channel-container" id="channelcontainer"></div>
                         </div>
-                        <div class="cursor-container"></div>
+                        <div class="cursor-container">
+                          <select name="cursorType" id="cursorType">
+                            <option value="Disabled" selected="selected">Disabled</option>
+                            <option value="Vertical">Vertical</option>
+                            <option value="Horizontal">Horizontal</option>
+                          </select>
+                        </div>
                         <div class="scale-container"></div>
                       </div>
                     </div>
@@ -328,6 +345,18 @@ function updateGraphData(data) {
 
 function resetGraphData() {
   getDigitalWaveformGraphData().resetGraphData();
+}
+
+function updateCursorMode(data) {
+  getDigitalWaveformGraphData().cursorMode = data;
+}
+
+function updateCursors(data) {
+  getDigitalWaveformGraphData().cursors = data;
+}
+
+function updateAnnotations(data) {
+  getDigitalWaveformGraphData().annotations = data;
 }
 
 function appendDataToFile(data) {

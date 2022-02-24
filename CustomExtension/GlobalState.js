@@ -193,6 +193,13 @@ let digitalWaveformGraphData = {
   scrollCounter: 0,
   channels: [],
   channelsPerView: 10,
+  cursors: [],
+  cursorMode: "Disabled",
+  annotations: {
+    axisValAnnotations: [],
+    tracesAnnotations: [],
+    cursorAnnotations: [],
+  },
   updateGraphData: (data) => {
     digitalWaveformGraphData.graphData = data;
   },
