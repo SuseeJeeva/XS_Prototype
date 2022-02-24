@@ -48,6 +48,7 @@ let configuration = {
         },
       },
     ],
+    ["pan2d"],
     ["zoom2d"],
     ["zoomIn2d"],
     ["zoomOut2d"],
