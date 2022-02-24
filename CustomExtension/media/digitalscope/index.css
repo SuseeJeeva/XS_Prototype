@@ -80,8 +80,16 @@ body {
   width: 150px;
 }
 
+.cursor-container-wrapper {
+  border: 1px solid var(--vscode-editorWidget-border) !important;
+  height: 100px;
+  padding: 10px;
+}
+
 .cursor-container {
-  height: 30%;
+  align-items: center;
+  display: flex;
+  margin-top: 10px;
 }
 
 .function-buttons {
@@ -191,9 +199,9 @@ select {
   background: var(--vscode-input-background);
   border: 1px solid var(--vscode-editorWidget-border) !important;
   color: var(--vscode-input-foreground);
-  height: 20px;
-  width: 70px !important;
+  left: 5px;
+  height: 30px;
   position: relative;
   top: 0px;
-  left: 5px;
+  width: 150px !important;
 }

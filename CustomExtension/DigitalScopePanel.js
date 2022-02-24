@@ -277,12 +277,15 @@ var DigitalScopePanel = /** @class */ (function () {
                           <div class="channel-container-header">Channel Configuration</div>
                           <div class="channel-container" id="channelcontainer"></div>
                         </div>
-                        <div class="cursor-container">
-                          <select name="cursorType" id="cursorType">
-                            <option value="Disabled" selected="selected">Disabled</option>
-                            <option value="Vertical">Vertical</option>
-                            <option value="Horizontal">Horizontal</option>
-                          </select>
+                        <div class="cursor-container-wrapper">
+                          <div class="channel-container-header">Cursor Configuration</div>
+                          <div class="cursor-container">
+                            <select name="cursorType" id="cursorType">
+                              <option value="Disabled" selected="selected">Disabled</option>
+                              <option value="Vertical">Vertical</option>
+                              <option value="Horizontal">Horizontal</option>
+                            </select>
+                          </div>
                         </div>
                         <div class="scale-container"></div>
                       </div>

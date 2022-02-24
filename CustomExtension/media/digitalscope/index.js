@@ -83,6 +83,8 @@ function execute() {
 function generateTraces(dataPoints) {
   dataPoints.reverse();
   data = [];
+  axisValAnnotations = [];
+  tracesAnnotations = [];
   let factor = 1 / dataPoints.length;
   let minValue = 0;
   let maxValue = factor;
@@ -104,36 +106,38 @@ function generateTraces(dataPoints) {
         color: "green",
       },
     });
-    axisValAnnotations.push({
-      xref: "paper",
-      yref: "y",
-      x: 0,
-      y: parseFloat(maxValue - margin),
-      xanchor: "right",
-      yanchor: "center",
-      text: `1`,
-      font: {
-        family: "Arial",
-        size: 10,
-        color: "white",
-      },
-      showarrow: false,
-    });
-    axisValAnnotations.push({
-      xref: "paper",
-      yref: "y",
-      x: 0,
-      y: parseFloat(minValue + margin),
-      xanchor: "right",
-      yanchor: "center",
-      text: `0`,
-      font: {
-        family: "Arial",
-        size: 10,
-        color: "white",
-      },
-      showarrow: false,
-    });
+    if (dataPoints[i].length > 0) {
+      axisValAnnotations.push({
+        xref: "paper",
+        yref: "y",
+        x: 0,
+        y: parseFloat(maxValue - margin),
+        xanchor: "right",
+        yanchor: "center",
+        text: `1`,
+        font: {
+          family: "Arial",
+          size: 10,
+          color: "white",
+        },
+        showarrow: false,
+      });
+      axisValAnnotations.push({
+        xref: "paper",
+        yref: "y",
+        x: 0,
+        y: parseFloat(minValue + margin),
+        xanchor: "right",
+        yanchor: "center",
+        text: `0`,
+        font: {
+          family: "Arial",
+          size: 10,
+          color: "white",
+        },
+        showarrow: false,
+      });
+    }
     minValue = maxValue;
     maxValue = maxValue + factor;
   }
