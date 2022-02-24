@@ -54,7 +54,8 @@ body {
   display: flex;
   justify-content: center;
   margin: 0;
-  width: 32px !important;
+  padding: 4px;
+  width: 27px !important;
 }
 
 .button-3:active {
@@ -219,7 +220,7 @@ body {
   height: 500px;
   justify-content: space-between;
   margin: 45px 0 0 20px;
-  width: 34px;
+  width: 28px;
 }
 
 .selectcontainer {

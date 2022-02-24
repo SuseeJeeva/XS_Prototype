@@ -97,7 +97,7 @@ function generateTraces(dataPoints) {
       return x === "0" ? "0" : "3.3";
     });
     data.push({
-      x: [...Array(dataPoints[i].length).keys()],
+      x: [...Array(dataPoints[i].length).keys()].map((x) => x * 0.0296),
       y: yPoints,
       type: "scatter",
       mode: "lines",
