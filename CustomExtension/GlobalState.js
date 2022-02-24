@@ -136,6 +136,7 @@ let bitMapToolGraphData = {
       height: Math.ceil(yRange[1] - yRange[0]),
       Operator: "And",
       index: configurationIndex++,
+      name: ` ${configurationIndex}`,
     });
   },
   updateXValue: (value, index) => {

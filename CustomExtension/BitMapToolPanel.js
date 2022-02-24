@@ -295,7 +295,6 @@ var BitMapToolPanel = /** @class */ (function () {
                   <div class="main-container" id="maincontainer">
                     <div class="function-buttons">
                       <button onclick="execute()" class="button-1">Fetch Graph Data</button>
-                      <button onclick="onExportClick()" class="button-1">Export</button>
                     </div>
                     <div class="graph-container">
                       <div id="main-graph"></div>
@@ -305,6 +304,7 @@ var BitMapToolPanel = /** @class */ (function () {
                       <div class="label pad-6-4 bold">
                         Export Configuration
                       </div>
+                      <button onclick="onExportClick()" class="button-1 mar-0">Export</button>
                     </div>
                     <div class="export-configuration-container" id="exportconfigcontainer">
                     </div>

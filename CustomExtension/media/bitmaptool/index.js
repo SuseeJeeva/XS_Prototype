@@ -236,6 +236,21 @@ function loadConfiguration(data) {
     let wrapperContainer = document.createElement("div");
     wrapperContainer.classList.add("export-configuration-controls");
 
+    let nameComponent = document.createElement("div");
+    nameComponent.classList.add("control-container");
+    let nameHeader = document.createElement("div");
+    nameHeader.classList.add("label");
+    nameHeader.classList.add("bold");
+    nameHeader.classList.add("pad-6-4");
+    nameHeader.innerHTML = "Layer";
+    let nameContent = document.createElement("div");
+    nameContent.classList.add("label");
+    nameContent.classList.add("bold");
+    nameContent.classList.add("pad-6-4");
+    nameContent.innerHTML = datum.name;
+    nameComponent.appendChild(nameHeader);
+    nameComponent.appendChild(nameContent);
+
     let xValueComponent = document.createElement("div");
     xValueComponent.classList.add("control-container");
     let xValueHeader = document.createElement("div");
@@ -355,6 +370,7 @@ function loadConfiguration(data) {
       parentContainer.removeChild(wrapperContainer);
     });
 
+    wrapperContainer.appendChild(nameComponent);
     wrapperContainer.appendChild(xValueComponent);
     wrapperContainer.appendChild(yValueComponent);
     wrapperContainer.appendChild(widthComponent);
