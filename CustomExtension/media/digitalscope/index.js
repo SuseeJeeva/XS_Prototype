@@ -21,6 +21,7 @@ let cursorMovementDecision;
 let plotHandle = document.getElementById("graph");
 let cursorSelection = document.getElementById("cursorType");
 
+let currentActiveChannels = [];
 let data = [];
 let layout = {
   autosize: true,
@@ -111,8 +112,9 @@ function generateTraces(dataPoints) {
     let text = dataPoints[i].split("").map((x) => {
       return x === "0" ? "0" : "3.3";
     });
+    let xValues = [...Array(dataPoints[i].length).keys()].map((x) => x * 0.0296);
     data.push({
-      x: [...Array(dataPoints[i].length).keys()].map((x) => x * 0.0296),
+      x: xValues,
       y: yPoints,
       type: "scatter",
       mode: "lines",
@@ -156,18 +158,19 @@ function generateTraces(dataPoints) {
         },
         showarrow: false,
       });
+
       tracesAnnotations.push({
-        xref: "paper",
+        xref: "x",
         yref: "y",
-        x: 1,
-        y: (maxValue - minValue) / 2,
+        x: xValues[xValues.length - 1],
+        y: (maxValue - margin - (minValue + margin)) / 2 + (minValue + margin),
         xanchor: "left",
         yanchor: "center",
-        text: `${data.name}`,
+        text: `${currentActiveChannels[i].name}`,
         font: {
           family: "Arial",
           size: 12,
-          color: "white",
+          color: "green",
         },
         showarrow: false,
       });
@@ -217,6 +220,11 @@ function setMaxScrollCounter(activeChannelCount) {
       value: scrollCounter,
     });
   }
+}
+
+function updateCurrentActiveChannels(channels) {
+  currentActiveChannels = channels;
+  currentActiveChannels.reverse();
 }
 
 function updateChannels(channels) {
@@ -485,6 +493,7 @@ function updateAnnotations() {
 window.addEventListener("message", (event) => {
   switch (event.data.command) {
     case "updateGraph":
+      updateCurrentActiveChannels(event.data.currentActiveChannels);
       generateTraces(event.data.dataPoints);
       updateChannels(event.data.allChannels);
       setMaxScrollCounter(event.data.maxScrollCounter);
@@ -492,6 +501,7 @@ window.addEventListener("message", (event) => {
       plotGraph();
       break;
     case "syncData":
+      updateCurrentActiveChannels(event.data.currentActiveChannels);
       generateTraces(event.data.dataPoints);
       updateChannels(event.data.allChannels);
       scrollCounter = event.data.scrollCounter;
@@ -504,6 +514,7 @@ window.addEventListener("message", (event) => {
       plotGraph();
       break;
     case "updateTotalChannels":
+      updateCurrentActiveChannels(event.data.currentActiveChannels);
       updateChannels(event.data.allChannels);
       break;
   }

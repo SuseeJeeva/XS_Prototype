@@ -213,6 +213,7 @@ var DigitalScopePanel = /** @class */ (function () {
                     annotations: digitalWaveformGraphData.annotations,
                     cursors: digitalWaveformGraphData.cursors,
                     cursorTracker: digitalWaveformGraphData.cursorTracker,
+                    currentActiveChannels: digitalWaveformGraphData.getActiveChannelsBasedOnScrollCounter(),
                   });
                   break;
                 case "execute":
@@ -335,7 +336,7 @@ function clearCursorData() {
 
 function updateTotalChannels(value) {
   getDigitalWaveformGraphData().updateTotalChannels(value);
-  selfWebView.postMessage({ command: "updateTotalChannels", allChannels: getDigitalWaveformGraphData().getAllChannels() });
+  selfWebView.postMessage({ command: "updateTotalChannels", allChannels: getDigitalWaveformGraphData().getAllChannels(), currentActiveChannels: getDigitalWaveformGraphData().getActiveChannelsBasedOnScrollCounter() });
 }
 
 function updateTotalCycles(value) {
@@ -378,7 +379,7 @@ async function fetchData() {
 
 function updateGraph() {
   var digitalWaveformGraphData = getDigitalWaveformGraphData();
-  selfWebView.postMessage({ command: "updateGraph", dataPoints: digitalWaveformGraphData.graphData, maxScrollCounter: Math.max(digitalWaveformGraphData.getActiveChannels().length - digitalWaveformGraphData.channelsPerView, 0), allChannels: digitalWaveformGraphData.getAllChannels() });
+  selfWebView.postMessage({ command: "updateGraph", dataPoints: digitalWaveformGraphData.graphData, maxScrollCounter: Math.max(digitalWaveformGraphData.getActiveChannels().length - digitalWaveformGraphData.channelsPerView, 0), allChannels: digitalWaveformGraphData.getAllChannels(), currentActiveChannels: digitalWaveformGraphData.getActiveChannelsBasedOnScrollCounter() });
 }
 
 function appendGraphData(data) {
