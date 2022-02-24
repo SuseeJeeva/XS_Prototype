@@ -93,6 +93,9 @@ function generateTraces(dataPoints) {
     let yPoints = dataPoints[i].split("").map((x) => {
       return x === "0" ? minValue + margin : maxValue - margin;
     });
+    let text = dataPoints[i].split("").map((x) => {
+      return x === "0" ? "0" : "3.3";
+    });
     data.push({
       x: [...Array(dataPoints[i].length).keys()],
       y: yPoints,
@@ -101,7 +104,8 @@ function generateTraces(dataPoints) {
       marker: {
         size: 5,
       },
-      hovertemplate: "<b>Voltage(V)</b>: %{%{y}+2}V" + "<br><b>Time(us)</b>: %{x}<br>",
+      text: text,
+      hovertemplate: "<b>Voltage(V)</b>: %{text}V" + "<br><b>Time(us)</b>: %{x}<br>",
       line: {
         color: "green",
       },
@@ -118,7 +122,7 @@ function generateTraces(dataPoints) {
         font: {
           family: "Arial",
           size: 10,
-          color: "white",
+          color: "green",
         },
         showarrow: false,
       });
@@ -133,7 +137,7 @@ function generateTraces(dataPoints) {
         font: {
           family: "Arial",
           size: 10,
-          color: "white",
+          color: "green",
         },
         showarrow: false,
       });
@@ -264,6 +268,7 @@ window.addEventListener("message", (event) => {
 
 cursorSelection.onchange = function () {
   cursorMode = this.value == "Horizontal" ? this.value : this.value == "Vertical" ? this.value : "Disabled";
+  layout.dragmode = cursorMode == "Disabled" ? true : false;
   vscode.postMessage({
     command: "cursorModeChanged",
     value: cursorMode,
