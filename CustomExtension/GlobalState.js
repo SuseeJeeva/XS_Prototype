@@ -27,10 +27,11 @@ let datalogConfig = {
 };
 
 let bitMapToolGraphData = {
+  samples: 100,
   mainGraphRowPoints: [],
   mainGraphColumnPoints: [],
   mainGraphDataPoints: [],
-  cursorGraphRowSamples: 200,
+  cursorGraphRowSamples: 20,
   cursorGraphColumnSamples: 5,
   cursorGraphRowScale: 999,
   cursorGraphColumnScale: 999,
@@ -136,6 +137,7 @@ let bitMapToolGraphData = {
       height: Math.ceil(yRange[1] - yRange[0]),
       Operator: "And",
       index: configurationIndex++,
+      name: ` ${configurationIndex}`,
     });
   },
   updateXValue: (value, index) => {
@@ -162,9 +164,25 @@ let bitMapToolGraphData = {
     let configuration = bitMapToolGraphData.exportGraphData.find((x) => x.index === index);
     bitMapToolGraphData.exportGraphData.splice(bitMapToolGraphData.exportGraphData.indexOf(configuration), 1);
   },
+  updateSamples: (samples) => {
+    bitMapToolGraphData.samples = parseInt(samples);
+    bitMapToolGraphData.cursorGraphRowSamples = bitMapToolGraphData.samples / bitMapToolGraphData.cursorGraphColumnSamples;
+    initializeBitMapToolGraph();
+  },
+  initializeBitMapToolGraph: () => {
+    initializeBitMapToolGraph();
+  },
 };
 
 function initializeBitMapToolGraph() {
+  bitMapToolGraphData.cursorGraphRowReference = 0;
+  bitMapToolGraphData.cursorGraphColumnReference = 0;
+  bitMapToolGraphData.mainGraphRowPoints = [];
+  bitMapToolGraphData.mainGraphColumnPoints = [];
+  bitMapToolGraphData.mainGraphDataPoints = [];
+  bitMapToolGraphData.cursorGraphRowPoints = [];
+  bitMapToolGraphData.cursorGraphColumnPoints = [];
+  bitMapToolGraphData.cursorGraphDataPoints = [];
   bitMapToolGraphData.cursorGraphRowRange = Math.ceil(bitMapToolGraphData.mainGraphRowCount / bitMapToolGraphData.cursorGraphRowScale) * bitMapToolGraphData.cursorGraphRowSamples;
   bitMapToolGraphData.cursorGraphColumnRange = Math.ceil(bitMapToolGraphData.mainGraphColumnCount / bitMapToolGraphData.cursorGraphColumnScale) * bitMapToolGraphData.cursorGraphColumnSamples;
 
@@ -188,15 +206,31 @@ function initializeBitMapToolGraph() {
 initializeBitMapToolGraph();
 
 let digitalWaveformGraphData = {
+  totalChannels: 512,
+  totalCycles: 100,
   graphData: [],
   scrollCounter: 0,
   channels: [],
   channelsPerView: 10,
+  cursors: [],
+  cursorTracker: {
+    globalX: [],
+    globalY: [],
+  },
+  cursorMode: "Disabled",
+  annotations: {
+    axisValAnnotations: [],
+    tracesAnnotations: [],
+    cursorAnnotations: [],
+  },
   updateGraphData: (data) => {
     digitalWaveformGraphData.graphData = data;
   },
   getActiveChannels: () => {
     return digitalWaveformGraphData.channels.filter((x) => x.isActive);
+  },
+  getAllChannels: () => {
+    return digitalWaveformGraphData.channels;
   },
   getActiveChannelsBasedOnScrollCounter: () => {
     return digitalWaveformGraphData.channels.filter((x) => x.isActive).slice(digitalWaveformGraphData.scrollCounter, digitalWaveformGraphData.scrollCounter + digitalWaveformGraphData.channelsPerView);
@@ -217,22 +251,39 @@ let digitalWaveformGraphData = {
       digitalWaveformGraphData.graphData[i] = "";
     }
   },
+  updateChannelActive: (index, value) => {
+    if (index === -1) {
+      for (let i = 0; i < digitalWaveformGraphData.channels.length; i++) {
+        digitalWaveformGraphData.channels[i].isActive = value;
+      }
+    } else {
+      digitalWaveformGraphData.channels[index].isActive = value;
+    }
+  },
+  updateTotalChannels: (totalChannels) => {
+    digitalWaveformGraphData.totalChannels = totalChannels;
+    initializeDigitalWaveformGraph();
+  },
+  updateTotalCycles: (totalCycles) => {
+    digitalWaveformGraphData.totalCycles = totalCycles;
+  },
 };
 
 function initializeDigitalWaveformGraph() {
-  for (let i = 0; i < 512; i++) {
+  digitalWaveformGraphData.channels = [];
+  for (let i = 0; i < digitalWaveformGraphData.totalChannels; i++) {
     digitalWaveformGraphData.channels[i] = {
       name: `GPIO ${i}`,
-      isActive: false,
+      isActive: true,
       index: i,
     };
   }
 
   digitalWaveformGraphData.resetGraphData();
 
-  for (let i = 0; i < 20; i++) {
-    digitalWaveformGraphData.channels[i].isActive = true;
-  }
+  // for (let i = 0; i < 20; i++) {
+  //   digitalWaveformGraphData.channels[i].isActive = true;
+  // }
 }
 
 initializeDigitalWaveformGraph();

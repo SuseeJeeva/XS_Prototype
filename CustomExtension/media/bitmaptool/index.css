@@ -67,7 +67,7 @@ body {
 
 .export-configuration-container {
   border: 1px solid var(--vscode-editorWidget-border);
-  margin: 10px 20px;
+  margin: 10px 0 10px 20px;
 }
 
 .export-configuration-controls {
@@ -98,7 +98,7 @@ body {
 
 .header2 {
   display: flex;
-  height: 20px;
+  height: 30px;
   justify-content: space-between;
   padding-left: 11px;
   width: 100%;
@@ -133,12 +133,20 @@ body {
   display: flex;
 }
 
+.mar-0 {
+  margin: 0;
+}
+
 .pad-6-4 {
   padding: 6px 4px;
 }
 
 .visibility-hide {
   visibility: hidden;
+}
+
+.wid-250 {
+  width: 250px;
 }
 
 #main-graph {
@@ -163,6 +171,7 @@ body {
 }
 
 input {
+  background: var(--vscode-input-background);
   border: 1px solid var(--vscode-editorWidget-border) !important;
   height: 20px;
   width: 70px !important;
@@ -172,6 +181,7 @@ input {
 }
 
 select {
+  background: var(--vscode-input-background);
   border: 1px solid var(--vscode-editorWidget-border) !important;
   color: var(--vscode-input-foreground);
   height: 20px;
@@ -179,4 +189,12 @@ select {
   position: relative;
   top: 0px;
   left: 5px;
+}
+
+input[type="checkbox"]:focus {
+  outline: 0;
+}
+
+input[type="number"]:focus {
+  outline: 0;
 }

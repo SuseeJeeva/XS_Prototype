@@ -9,6 +9,7 @@ const graphImageDirectory = __dirname + "/graphImage/";
 let graphFileCounter = 1;
 let graphImageCounter = 1;
 let isMainGraphRenderInProgress = false;
+let isFirstSample = true;
 var selfWebView = undefined;
 
 if (fs.existsSync(graphDirectory)) {
@@ -231,6 +232,7 @@ var BitMapToolPanel = /** @class */ (function () {
                     cursorGraphRowPoints: bitMapToolGraphData.cursorGraphRowPoints,
                     cursorGraphColumnPoints: bitMapToolGraphData.cursorGraphColumnPoints,
                     cursorGraphDataPoints: bitMapToolGraphData.cursorGraphDataPoints,
+                    samples: bitMapToolGraphData.samples,
                     loadConfiguration: getBitMapToolGraphData().exportGraphData,
                   });
                   break;
@@ -264,6 +266,9 @@ var BitMapToolPanel = /** @class */ (function () {
                 case "postMessage":
                   vscode.window.showInformationMessage(data.message);
                   break;
+                case "updateSamples":
+                  updateSamples(data.value);
+                  break;
               }
               return [2 /*return*/];
             });
@@ -295,7 +300,10 @@ var BitMapToolPanel = /** @class */ (function () {
                   <div class="main-container" id="maincontainer">
                     <div class="function-buttons">
                       <button onclick="execute()" class="button-1">Fetch Graph Data</button>
-                      <button onclick="onExportClick()" class="button-1">Export</button>
+                      <div class="control-container wid-250">
+                        <div class="label pad-6-4">Blocks (4k Res)</div>
+                        <input type="number" id="samples" min="5" onchange="updateSamples(this)" value="${getBitMapToolGraphData().samples}" step="${getBitMapToolGraphData().cursorGraphColumnSamples}"></input>
+                      </div>
                     </div>
                     <div class="graph-container">
                       <div id="main-graph"></div>
@@ -305,6 +313,7 @@ var BitMapToolPanel = /** @class */ (function () {
                       <div class="label pad-6-4 bold">
                         Export Configuration
                       </div>
+                      <button onclick="onExportClick()" class="button-1 mar-0">Export</button>
                     </div>
                     <div class="export-configuration-container" id="exportconfigcontainer">
                     </div>
@@ -330,6 +339,11 @@ var BitMapToolPanel = /** @class */ (function () {
   BitMapToolPanel.viewType = "BitMapToolPanel";
   return BitMapToolPanel;
 })();
+
+function updateSamples(value) {
+  getBitMapToolGraphData().updateSamples(value);
+  selfWebView.postMessage({ command: "updateCursorGraphRowPoints", cursorGraphRowPoints: getBitMapToolGraphData().cursorGraphRowPoints });
+}
 
 function updateXValue(value, index) {
   getBitMapToolGraphData().updateXValue(value, index);
@@ -361,18 +375,25 @@ function deleteConfiguration(index) {
 }
 
 function execute() {
+  getBitMapToolGraphData().initializeBitMapToolGraph();
   getServers()
     .filter((x) => x.isActive)
     .forEach((server) => {
-      console.time("Time taken to receive data");
-      server.service.testMethodService.ExecuteTestMethodForBitmapToolGraph({}, (err) => {
-        console.log("Receiving gRPC Response from ExecuteTestMethodForBitmapToolGraph");
-        if (err) {
-          console.log(err);
-        } else {
-          vscode.window.showInformationMessage("Test Method Executed Successfully...");
+      //console.time("Time taken to receive data");
+      isFirstSample = true;
+      server.service.testMethodService.ExecuteTestMethodForBitmapToolGraph(
+        {
+          samples: getBitMapToolGraphData().samples,
+        },
+        (err) => {
+          console.log("Receiving gRPC Response from ExecuteTestMethodForBitmapToolGraph");
+          if (err) {
+            console.log(err);
+          } else {
+            vscode.window.showInformationMessage("Test Method Executed Successfully...");
+          }
         }
-      });
+      );
     });
 }
 
@@ -401,9 +422,9 @@ function saveGraphData() {
 }
 
 function loadMainGraphData(x, y) {
-  console.time("load main graph");
+  //console.time("load main graph");
   if (isMainGraphRenderInProgress) {
-    console.timeEnd("load main graph");
+    //console.timeEnd("load main graph");
     return;
   }
   isMainGraphRenderInProgress = true;
@@ -422,17 +443,17 @@ function loadMainGraphData(x, y) {
     fs.readFile(actualFileName, "utf8", (err, data) => {
       if (err) {
         console.log(err);
-        console.timeEnd("load main graph");
+        //console.timeEnd("load main graph");
         return;
       }
       updateMainGraphDataWithString(data);
       plotMainGraphWithStringData(data);
       isMainGraphRenderInProgress = false;
-      console.timeEnd("load main graph");
+      //console.timeEnd("load main graph");
     });
   } else {
     isMainGraphRenderInProgress = false;
-    console.timeEnd("load main graph");
+    // console.timeEnd("load main graph");
   }
 }
 
@@ -461,7 +482,6 @@ function plotCursorGraph() {
 }
 
 (function subscribeBitMapToolGraph() {
-  let isFirstSample = true;
   getServers()
     .filter((x) => x.isActive)
     .forEach((server) => {
@@ -469,8 +489,8 @@ function plotCursorGraph() {
         ClientName: "BitMapTool",
       });
       server.subscription.bitmaptoolSubscription.on("data", (data) => {
-        console.timeEnd("Time taken to receive data");
-        console.time("Time taken to receive data");
+        // console.timeEnd("Time taken to receive data");
+        // console.time("Time taken to receive data");
         let receivedData = getDataInArrayFormat(data.Data);
         let receivedDataInStringFormat = data.Data;
         try {

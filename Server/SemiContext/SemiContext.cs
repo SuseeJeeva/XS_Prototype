@@ -14,6 +14,9 @@ namespace SemiContextNS
   {
     public static Messenger messenger;
     public List<string> sites = new List<string>();
+    public int bitMapSamples = 100;
+    public int totalChannels = 512;
+    public int totalCycles = 100;
 
     [DllImport("generate_sort.dll")]
     private static extern void GenerateFile(StringBuilder path, StringBuilder resultfile);
@@ -63,35 +66,64 @@ namespace SemiContextNS
       });
     }
 
-    public void GenerateDigitalWaveformPattern(int cycles, int channels)
+    public void GenerateDigitalWaveformPattern()
     {
-      //Stopwatch stopwatch = Stopwatch.StartNew();
       var digitalWaveformInfo = new DigitalWaveformInfo();
-      var stringBuilders = GetNewStringBuilders(channels);
+      var stringBuilders = GetNewStringBuilders(totalChannels);
       var samplesLimit = 400;
       var hasData = false;
-      
-      for (int cycle = 0; cycle < cycles; cycle++)
+
+      for (int cycle = 0; cycle < totalCycles; cycle++)
       {
-        for (int channel = 0; channel < channels; channel++)
+        for (int channel = 0; channel < totalChannels; channel++)
         {
           hasData = true;
           stringBuilders[channel].Append(GetCycleData());
         }
         if ((cycle + 1) % samplesLimit == 0)
         {
-          SendDigitalWaveformResponse(channels, stringBuilders, digitalWaveformInfo);
+          SendDigitalWaveformResponse(totalChannels, stringBuilders, digitalWaveformInfo);
           digitalWaveformInfo = new DigitalWaveformInfo();
-          stringBuilders = GetNewStringBuilders(channels);
+          stringBuilders = GetNewStringBuilders(totalChannels);
           hasData = false;
         }
       }
       if (hasData)
       {
-        SendDigitalWaveformResponse(channels, stringBuilders, digitalWaveformInfo);
+        SendDigitalWaveformResponse(totalChannels, stringBuilders, digitalWaveformInfo);
       }
-      //stopwatch.Stop();
-      //Console.WriteLine(stopwatch.Elapsed.TotalMilliseconds);
+    }
+
+    public void GenerateBitMapPattern()
+    {
+      for (var sample = 0; sample < bitMapSamples; sample++)
+      {
+        var rand = new Random();
+        switch (rand.Next(0, 5))
+        {
+          case 0:
+            GenerateCheckerBoardPattern();
+            break;
+          case 1:
+            GenerateInverseCheckerBoardPattern();
+            break;
+          case 2:
+            GenerateRandomPattern();
+            break;
+          case 3:
+            GenerateDominantPassPattern();
+            break;
+          case 4:
+            GenerateDominantFailPattern();
+            break;
+          case 5:
+            GenerateHalfRowPassPattern();
+            break;
+          case 6:
+            GenerateHalfColumnPassPattern();
+            break;
+        }
+      }
     }
 
     private void SendDigitalWaveformResponse(int channels, StringBuilder[] stringBuilders, DigitalWaveformInfo digitalWaveformInfo)
@@ -131,7 +163,7 @@ namespace SemiContextNS
       return data.ToString();
     }
 
-    public void GenerateCheckerBoardPattern()
+    private void GenerateCheckerBoardPattern()
     {
       //Stopwatch stopwatch = Stopwatch.StartNew();
       var rowSize = 2160;
@@ -156,7 +188,7 @@ namespace SemiContextNS
           {
             stringBuilder.Append(",");
           }
-            counter = (counter + 1) % 2;
+          counter = (counter + 1) % 2;
         }
         initialcounter = (initialcounter + 1) % 2;
       }
@@ -166,7 +198,7 @@ namespace SemiContextNS
       //Console.WriteLine(stopwatch.Elapsed.TotalMilliseconds);
     }
 
-    public void GenerateInverseCheckerBoardPattern()
+    private void GenerateInverseCheckerBoardPattern()
     {
       var rowSize = 2160;
       var columnSize = 3840;
@@ -198,34 +230,34 @@ namespace SemiContextNS
       messenger.Send(bitmapInfo);
     }
 
-  public void GenerateRandomPattern()
-  {
-    var rowSize = 2160;
-    var columnSize = 3840;
-    var rand = new Random();
-
-    StringBuilder stringBuilder = new StringBuilder();
-    var bitmapInfo = new BitMapInfo();
-    for (var rowNumber = 0; rowNumber < rowSize; rowNumber++)
+    private void GenerateRandomPattern()
     {
-      for (var columnNumber = 0; columnNumber < columnSize; columnNumber++)
+      var rowSize = 2160;
+      var columnSize = 3840;
+      var rand = new Random();
+
+      StringBuilder stringBuilder = new StringBuilder();
+      var bitmapInfo = new BitMapInfo();
+      for (var rowNumber = 0; rowNumber < rowSize; rowNumber++)
       {
-        stringBuilder.Append(rand.Next(0, 2));
-        if (rowNumber != rowSize - 1 && columnNumber == columnSize - 1)
+        for (var columnNumber = 0; columnNumber < columnSize; columnNumber++)
         {
-          stringBuilder.Append("\r\n");
-        }
-        else if (columnNumber != columnSize - 1)
-        {
-          stringBuilder.Append(",");
+          stringBuilder.Append(rand.Next(0, 2));
+          if (rowNumber != rowSize - 1 && columnNumber == columnSize - 1)
+          {
+            stringBuilder.Append("\r\n");
+          }
+          else if (columnNumber != columnSize - 1)
+          {
+            stringBuilder.Append(",");
+          }
         }
       }
+      bitmapInfo.Data = stringBuilder.ToString();
+      messenger.Send(bitmapInfo);
     }
-    bitmapInfo.Data = stringBuilder.ToString();
-    messenger.Send(bitmapInfo);
-  }
 
-    public void GenerateDominantPassPattern()
+    private void GenerateDominantPassPattern()
     {
       var rowSize = 2160;
       var columnSize = 3840;
@@ -253,7 +285,7 @@ namespace SemiContextNS
       messenger.Send(bitmapInfo);
     }
 
-    public void GenerateDominantFailPattern()
+    private void GenerateDominantFailPattern()
     {
       var rowSize = 2160;
       var columnSize = 3840;
@@ -281,7 +313,7 @@ namespace SemiContextNS
       messenger.Send(bitmapInfo);
     }
 
-    public void GenerateHalfRowPassPattern()
+    private void GenerateHalfRowPassPattern()
     {
       var rowSize = 2160;
       var columnSize = 3840;
@@ -307,7 +339,7 @@ namespace SemiContextNS
       messenger.Send(bitmapInfo);
     }
 
-    public void GenerateHalfColumnPassPattern()
+    private void GenerateHalfColumnPassPattern()
     {
       var rowSize = 2160;
       var columnSize = 3840;

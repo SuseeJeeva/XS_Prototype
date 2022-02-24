@@ -3,7 +3,7 @@ body {
   display: flex;
   flex-direction: column;
   font-family: sans-serif !important;
-  height: calc(100% - 50px);
+  height: 768px;
   justify-content: center;
   margin: 25px;
   position: relative;
@@ -47,13 +47,58 @@ body {
   border: 1px solid var(--vscode-button-background);
 }
 
-.button-2:active {
+.button-3 {
+  background: transparent;
+  border-top: 1px solid var(--vscode-editorWidget-border) !important;
+  color: var(--vscode-editorWidget-border) !important;
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  padding: 4px;
+  width: 27px !important;
+}
+
+.button-3:active {
+  background: transparent;
+  border: 1px solid var(--vscode-editorWidget-border) !important;
+  color: var(--vscode-editorWidget-border) !important;
   transform: scale(0.95);
 }
 
+.button-3:hover {
+  background: transparent;
+  color: var(--vscode-editorWidget-border) !important;
+}
+
+.channel-container-header {
+  align-items: center;
+  display: flex;
+  font-size: 14px;
+  font-weight: bold;
+  height: 25px;
+}
+
+.channel-container-header2 {
+  align-items: center;
+  display: flex;
+  font-size: 12px;
+  font-weight: bold;
+  height: 25px;
+}
+
+.channel-container-wrapper {
+  border: 1px solid var(--vscode-editorWidget-border) !important;
+  padding: 10px;
+}
+
 .channel-container {
-  background: green;
-  height: 30%;
+  height: 175px;
+  overflow: auto;
+}
+
+.channel-label {
+  align-items: center;
+  display: flex;
 }
 
 .control-container {
@@ -62,15 +107,32 @@ body {
   width: 150px;
 }
 
+.cursor-container-wrapper {
+  border: 1px solid var(--vscode-editorWidget-border) !important;
+  height: 100px;
+  padding: 10px;
+}
+
 .cursor-container {
-  background: orange;
-  height: 30%;
+  align-items: center;
+  display: flex;
+  margin-top: 10px;
 }
 
 .function-buttons {
   display: flex;
   justify-content: flex-start;
   width: 500px;
+}
+
+.graph-config-container-wrapper {
+  border: 1px solid var(--vscode-editorWidget-border) !important;
+  height: 200px;
+  padding: 10px;
+}
+
+.graph-config-container {
+  margin-top: 10px;
 }
 
 .graph-container {
@@ -81,8 +143,7 @@ body {
 }
 
 .graph-controls {
-  background: red;
-  margin-left: 10px;
+  margin: 50px;
   width: 400px;
 }
 
@@ -96,7 +157,7 @@ body {
 
 .header2 {
   display: flex;
-  height: 20px;
+  height: 25px;
   justify-content: space-between;
   padding-left: 11px;
   width: 100%;
@@ -109,6 +170,15 @@ body {
 .main-container {
   height: 100%;
   width: 100%;
+}
+
+.mar-top-10 {
+  margin-top: 10px;
+}
+
+.numberbox {
+  height: 30px !important;
+  width: 150px !important;
 }
 
 .image-container {
@@ -135,24 +205,35 @@ body {
   padding: 6px 4px;
 }
 
+.rot-180-deg {
+  transform: rotate(180deg) !important;
+}
+
 .scale-container {
-  background: yellow;
   height: 40%;
+}
+
+.scroll-bar {
+  border: 1px solid var(--vscode-editorWidget-border) !important;
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+  justify-content: space-between;
+  margin: 45px 0 0 20px;
+  width: 28px;
+}
+
+.selectcontainer {
+  display: flex;
 }
 
 .visibility-hide {
   visibility: hidden;
 }
 
-#main-graph {
+#graph {
   height: 600px;
   width: 800px;
-}
-
-#download-graph {
-  display: none;
-  height: 2160px;
-  width: 3840px;
 }
 
 #imageelement {
@@ -161,20 +242,30 @@ body {
 }
 
 input {
+  background: var(--vscode-input-background);
   border: 1px solid var(--vscode-editorWidget-border) !important;
-  height: 20px;
-  width: 70px !important;
+  height: 16px;
+  width: 35px !important;
   position: relative;
   top: 0px;
   left: 5px;
 }
 
+input[type="checkbox"]:focus {
+  outline: 0;
+}
+
+input[type="number"]:focus {
+  outline: 0;
+}
+
 select {
+  background: var(--vscode-input-background);
   border: 1px solid var(--vscode-editorWidget-border) !important;
   color: var(--vscode-input-foreground);
-  height: 20px;
-  width: 70px !important;
+  left: 5px;
+  height: 30px;
   position: relative;
   top: 0px;
-  left: 5px;
+  width: 150px !important;
 }

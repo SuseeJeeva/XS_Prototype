@@ -14,6 +14,8 @@ let hasPassValuesInMainGraph = true;
 let hasFailValuesInCursorGraph = true;
 let hasPassValuesInCursorGraph = true;
 
+let samples = 0;
+
 function plotMainGraph() {
   function getColorScale() {
     if (hasFailValuesInMainGraph && hasPassValuesInMainGraph) {
@@ -92,6 +94,7 @@ function plotMainGraph() {
             },
           },
         ],
+        ["pan2d"],
         ["zoom2d"],
         ["zoomIn2d"],
         ["zoomOut2d"],
@@ -151,7 +154,7 @@ function plotCursorGraph() {
       margin: {
         l: 40,
         r: 10,
-        t: 0,
+        t: 20,
         b: 40,
       },
       xaxis: {
@@ -218,6 +221,13 @@ function onExportClick() {
   });
 }
 
+function updateSamples(e) {
+  vscode.postMessage({
+    command: "updateSamples",
+    value: e.value,
+  });
+}
+
 function openImageContainer() {
   document.getElementById("maincontainer").classList.add("hide");
   document.getElementById("imagecontainer").classList.remove("hide");
@@ -234,6 +244,21 @@ function loadConfiguration(data) {
   data.forEach((datum, index) => {
     let wrapperContainer = document.createElement("div");
     wrapperContainer.classList.add("export-configuration-controls");
+
+    let nameComponent = document.createElement("div");
+    nameComponent.classList.add("control-container");
+    let nameHeader = document.createElement("div");
+    nameHeader.classList.add("label");
+    nameHeader.classList.add("bold");
+    nameHeader.classList.add("pad-6-4");
+    nameHeader.innerHTML = "Layer";
+    let nameContent = document.createElement("div");
+    nameContent.classList.add("label");
+    nameContent.classList.add("bold");
+    nameContent.classList.add("pad-6-4");
+    nameContent.innerHTML = datum.name;
+    nameComponent.appendChild(nameHeader);
+    nameComponent.appendChild(nameContent);
 
     let xValueComponent = document.createElement("div");
     xValueComponent.classList.add("control-container");
@@ -354,6 +379,7 @@ function loadConfiguration(data) {
       parentContainer.removeChild(wrapperContainer);
     });
 
+    wrapperContainer.appendChild(nameComponent);
     wrapperContainer.appendChild(xValueComponent);
     wrapperContainer.appendChild(yValueComponent);
     wrapperContainer.appendChild(widthComponent);
@@ -505,6 +531,8 @@ window.addEventListener("message", (event) => {
       cursorGraphRowPoints = event.data.cursorGraphRowPoints;
       cursorGraphColumnPoints = event.data.cursorGraphColumnPoints;
       cursorGraphDataPoints = event.data.cursorGraphDataPoints;
+      samples = event.data.samples;
+      document.getElementById("samples").value = samples;
       loadConfiguration(event.data.loadConfiguration);
       plotCursorGraph();
       plotMainGraph();

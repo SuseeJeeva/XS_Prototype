@@ -6,8 +6,6 @@ const nodeHtmlToImage = require("node-html-to-image");
 const { getServers, getDigitalWaveformGraphData } = require("./GlobalState");
 const graphDirectory = __dirname + "/digitalgraphdata/";
 
-const noOfChannels = 512;
-
 var selfWebView = undefined;
 
 clearGraphDirectory();
@@ -207,9 +205,15 @@ var DigitalScopePanel = /** @class */ (function () {
                   let digitalWaveformGraphData = getDigitalWaveformGraphData();
                   selfWebView.postMessage({
                     command: "syncData",
+                    allChannels: digitalWaveformGraphData.getAllChannels(),
                     dataPoints: digitalWaveformGraphData.graphData,
                     scrollCounter: digitalWaveformGraphData.scrollCounter,
-                    maxScrollCounter: digitalWaveformGraphData.getActiveChannels().length - digitalWaveformGraphData.channelsPerView,
+                    maxScrollCounter: Math.max(digitalWaveformGraphData.getActiveChannels().length - digitalWaveformGraphData.channelsPerView, 0),
+                    cursorMode: digitalWaveformGraphData.cursorMode,
+                    annotations: digitalWaveformGraphData.annotations,
+                    cursors: digitalWaveformGraphData.cursors,
+                    cursorTracker: digitalWaveformGraphData.cursorTracker,
+                    currentActiveChannels: digitalWaveformGraphData.getActiveChannelsBasedOnScrollCounter(),
                   });
                   break;
                 case "execute":
@@ -217,7 +221,32 @@ var DigitalScopePanel = /** @class */ (function () {
                   execute();
                   break;
                 case "updateScrollCounter":
-                  fetchData(data.value);
+                  getDigitalWaveformGraphData().scrollCounter = data.value;
+                  fetchData();
+                  break;
+                case "updateChannelActive":
+                  getDigitalWaveformGraphData().updateChannelActive(data.index, data.value);
+                  fetchData();
+                case "cursorModeChanged":
+                  updateCursorMode(data.value);
+                  break;
+                case "annotationsUpdated":
+                  updateAnnotations(data.value);
+                  break;
+                case "cursorsUpdated":
+                  updateCursors(data.value);
+                  break;
+                case "updateTotalChannels":
+                  updateTotalChannels(data.value);
+                  break;
+                case "updateTotalCycles":
+                  updateTotalCycles(data.value);
+                  break;
+                case "updateCursorTracker":
+                  updateCursorTracker(data.value);
+                  break;
+                case "clearCursorData":
+                  clearCursorData();
                   break;
               }
               return [2 /*return*/];
@@ -250,15 +279,38 @@ var DigitalScopePanel = /** @class */ (function () {
                   <div class="main-container" id="maincontainer">
                     <div class="function-buttons">
                       <button onclick="execute()" class="button-1">Fetch Graph Data</button>
-                      <button onclick="scrollDown()" class="button-1">Scroll Down</button>
-                      <button onclick="scrollUp()" class="button-1">Scroll Up</button>
                     </div>
                     <div class="graph-container">
                       <div id="graph"></div>
+                      <div class="scroll-bar">
+                        <button onclick="scrollUp()" class="button-1 button-3 rot-180-deg">V</button>
+                        <button onclick="scrollDown()" class="button-1 button-3">V</button>
+                      </div>
                       <div class="graph-controls">
-                        <div class="channel-container"></div>
-                        <div class="cursor-container"></div>
-                        <div class="scale-container"></div>
+                        <div class="graph-config-container-wrapper">
+                          <div class="channel-container-header">Graph Configuration</div>
+                          <div class="graph-config-container">
+                            <div class="channel-container-header2">Total Channels</div>
+                            <input class="numberbox" type="number" id="totalchannels" min="1" onchange="updateTotalChannels(this)" value="${getDigitalWaveformGraphData().totalChannels}"></input>
+                            <div class="channel-container-header2 mar-top-10">Total Cycles</div>
+                            <input class="numberbox" type="number" id="totalCycles" min="1" onchange="updateTotalCycles(this)" value="${getDigitalWaveformGraphData().totalCycles}"></input>
+                          </div>
+                        </div>
+                        <div class="channel-container-wrapper">
+                          <div class="channel-container-header">Channel Configuration</div>
+                          <div class="channel-container" id="channelcontainer"></div>
+                        </div>
+                        <div class="cursor-container-wrapper">
+                          <div class="channel-container-header">Cursor Configuration</div>
+                          <div class="cursor-container">
+                            <select name="cursorType" id="cursorType">
+                              <option value="Disabled" selected="selected">Disabled</option>
+                              <option value="Vertical">Vertical</option>
+                              <option value="Horizontal">Horizontal</option>
+                            </select>
+                            <button onclick="clearCursorData()" class="button-1">Clear Cursors</button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -272,6 +324,29 @@ var DigitalScopePanel = /** @class */ (function () {
   return DigitalScopePanel;
 })();
 
+function clearCursorData() {
+  var digitalWaveformGraphData = getDigitalWaveformGraphData();
+  digitalWaveformGraphData.cursors = [];
+  digitalWaveformGraphData.cursorTracker = {
+    globalX: [],
+    globalY: [],
+  };
+  digitalWaveformGraphData.annotations.cursorAnnotations = [];
+}
+
+function updateTotalChannels(value) {
+  getDigitalWaveformGraphData().updateTotalChannels(value);
+  selfWebView.postMessage({ command: "updateTotalChannels", allChannels: getDigitalWaveformGraphData().getAllChannels(), currentActiveChannels: getDigitalWaveformGraphData().getActiveChannelsBasedOnScrollCounter() });
+}
+
+function updateTotalCycles(value) {
+  getDigitalWaveformGraphData().updateTotalCycles(value);
+}
+
+function updateCursorTracker(data) {
+  getDigitalWaveformGraphData().cursorTracker = data;
+}
+
 (function SubscribeDigitalWaveformGraph() {
   getServers()
     .filter((x) => x.isActive)
@@ -280,9 +355,9 @@ var DigitalScopePanel = /** @class */ (function () {
         ClientName: "Digital Waveform Client",
       });
       server.subscription.digitalWaveformSubscription.on("data", (data) => {
-        console.timeEnd("Time taken to receive data");
-        console.log(data.Data.length);
-        console.time("Time taken to receive data");
+        //console.timeEnd("Time taken to receive data");
+        //console.log(data.Data.length);
+        //console.time("Time taken to receive data");
         let dataBasedOnChannels = data.Data.split("\r\n");
         appendDataToFile(dataBasedOnChannels);
         appendGraphData(dataBasedOnChannels);
@@ -291,17 +366,20 @@ var DigitalScopePanel = /** @class */ (function () {
     });
 })();
 
-async function fetchData(value) {
+async function fetchData() {
   let digitalWaveformGraphData = getDigitalWaveformGraphData();
-  digitalWaveformGraphData.scrollCounter = value;
   let activeChannels = digitalWaveformGraphData.getActiveChannelsBasedOnScrollCounter();
-  let graphData = await fetchActiveChannelsInfo(activeChannels);
-  updateGraphData(graphData);
+  if (activeChannels.length === 0) {
+    updateGraphData([]);
+  } else {
+    let graphData = await fetchActiveChannelsInfo(activeChannels);
+    updateGraphData(graphData);
+  }
 }
 
 function updateGraph() {
   var digitalWaveformGraphData = getDigitalWaveformGraphData();
-  selfWebView.postMessage({ command: "updateGraph", dataPoints: digitalWaveformGraphData.graphData, maxScrollCounter: digitalWaveformGraphData.getActiveChannels().length - digitalWaveformGraphData.channelsPerView });
+  selfWebView.postMessage({ command: "updateGraph", dataPoints: digitalWaveformGraphData.graphData, maxScrollCounter: Math.max(digitalWaveformGraphData.getActiveChannels().length - digitalWaveformGraphData.channelsPerView, 0), allChannels: digitalWaveformGraphData.getAllChannels(), currentActiveChannels: digitalWaveformGraphData.getActiveChannelsBasedOnScrollCounter() });
 }
 
 function appendGraphData(data) {
@@ -318,8 +396,20 @@ function resetGraphData() {
   getDigitalWaveformGraphData().resetGraphData();
 }
 
+function updateCursorMode(data) {
+  getDigitalWaveformGraphData().cursorMode = data;
+}
+
+function updateCursors(data) {
+  getDigitalWaveformGraphData().cursors = data;
+}
+
+function updateAnnotations(data) {
+  getDigitalWaveformGraphData().annotations = data;
+}
+
 function appendDataToFile(data) {
-  for (let i = 0; i < noOfChannels; i++) {
+  for (let i = 0; i < getDigitalWaveformGraphData().totalChannels; i++) {
     fs.appendFile(
       `${graphDirectory}${i}.txt`,
       data[i],
@@ -341,15 +431,21 @@ function execute() {
   getServers()
     .filter((x) => x.isActive)
     .forEach((server) => {
-      console.time("Time taken to receive data");
-      server.service.testMethodService.ExecuteTestMethodForDigitalWaveformGraph({}, (err) => {
-        console.log("Receiving gRPC Response from ExecuteTestMethodForDigitalWaveformGraph");
-        if (err) {
-          console.log(err);
-        } else {
-          vscode.window.showInformationMessage("Test Method Executed Successfully...");
+      //console.time("Time taken to receive data");
+      server.service.testMethodService.ExecuteTestMethodForDigitalWaveformGraph(
+        {
+          totalChannels: getDigitalWaveformGraphData().totalChannels,
+          totalCycles: getDigitalWaveformGraphData().totalCycles,
+        },
+        (err) => {
+          console.log("Receiving gRPC Response from ExecuteTestMethodForDigitalWaveformGraph");
+          if (err) {
+            console.log(err);
+          } else {
+            vscode.window.showInformationMessage("Test Method Executed Successfully...");
+          }
         }
-      });
+      );
     });
 }
 
