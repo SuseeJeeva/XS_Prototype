@@ -271,11 +271,13 @@ var DigitalScopePanel = /** @class */ (function () {
                   <div class="main-container" id="maincontainer">
                     <div class="function-buttons">
                       <button onclick="execute()" class="button-1">Fetch Graph Data</button>
-                      <button onclick="scrollDown()" class="button-1">Scroll Down</button>
-                      <button onclick="scrollUp()" class="button-1">Scroll Up</button>
                     </div>
                     <div class="graph-container">
                       <div id="graph"></div>
+                      <div class="scroll-bar">
+                        <button onclick="scrollUp()" class="button-1 button-3 rot-180-deg">V</button>
+                        <button onclick="scrollDown()" class="button-1 button-3">V</button>
+                      </div>
                       <div class="graph-controls">
                         <div class="graph-config-container-wrapper">
                           <div class="channel-container-header">Graph Configuration</div>

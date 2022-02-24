@@ -47,8 +47,26 @@ body {
   border: 1px solid var(--vscode-button-background);
 }
 
-.button-2:active {
+.button-3 {
+  background: transparent;
+  border-top: 1px solid var(--vscode-editorWidget-border) !important;
+  color: var(--vscode-editorWidget-border) !important;
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  width: 32px !important;
+}
+
+.button-3:active {
+  background: transparent;
+  border: 1px solid var(--vscode-editorWidget-border) !important;
+  color: var(--vscode-editorWidget-border) !important;
   transform: scale(0.95);
+}
+
+.button-3:hover {
+  background: transparent;
+  color: var(--vscode-editorWidget-border) !important;
 }
 
 .channel-container-header {
@@ -186,8 +204,22 @@ body {
   padding: 6px 4px;
 }
 
+.rot-180-deg {
+  transform: rotate(180deg) !important;
+}
+
 .scale-container {
   height: 40%;
+}
+
+.scroll-bar {
+  border: 1px solid var(--vscode-editorWidget-border) !important;
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+  justify-content: space-between;
+  margin: 45px 0 0 20px;
+  width: 34px;
 }
 
 .selectcontainer {
