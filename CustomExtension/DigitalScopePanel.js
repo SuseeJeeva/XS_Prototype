@@ -459,21 +459,17 @@ function clearGraphDirectory() {
 function fetchActiveChannelsInfo(activeChannels) {
   return new Promise((resolve) => {
     let graphData = [];
-    let counter = 0;
-    activeChannels.forEach(async (channel, index) => {
+    let promises = [];
+    activeChannels.forEach((channel) => {
       let actualFileName = `${graphDirectory}${channel.index}.txt`;
-      fs.readFile(actualFileName, "utf8", (err, data) => {
-        counter++;
-        if (err) {
-          console.log(err);
-          graphData[index] = "";
-        } else {
-          graphData[index] = data;
-        }
-        if (counter === activeChannels.length) {
-          return resolve(graphData);
-        }
+      promises.push(fs.promises.readFile(actualFileName, "utf8", () => {}));
+    });
+
+    Promise.all(promises).then((results) => {
+      results.forEach((data, index) => {
+        graphData[index] = data;
       });
+      resolve(graphData);
     });
   });
 }
